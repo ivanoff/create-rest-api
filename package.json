@@ -1,0 +1,40 @@
+{
+  "name": "create-rest-api",
+  "version": "0.1.1",
+  "description": "Create REST API",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha",
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- -- test/**/*.js"
+  },
+  "keywords": [
+    "API",
+    "REST",
+    "RESTful",
+    "RESTful API"
+  ],
+  "author": "Dimitry Ivanov <2@ivanoff.org.ua> # curl -A cv ivanoff.org.ua",
+  "license": "MIT",
+  "dependencies": {
+    "2valid": "^2.2.1",
+    "body-parser": "^1.16.0",
+    "create-raml": "^3.2.2",
+    "express": "^4.14.0",
+    "lodash": "^4.17.4",
+    "moment-timezone": "^0.5.11",
+    "mongodb": "^2.2.22",
+    "uuid": "^3.0.1",
+    "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "coveralls": "^2.11.15",
+    "istanbul": "^0.4.5",
+    "mocha": "^2.5.3",
+    "mocha-sinon": "^2.0.0",
+    "mongo-mock": "^2.4.0",
+    "should": "^9.0.0",
+    "sinon": "^2.1.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "db" : {
+    "mongo" : {
+      "login" : "test",
+      "password" : "test123",
+      "url" : "ds129189.mlab.com:29189/test-api"
+    }
+  },
+  "log" : {
+    "level" : "debug",
+    "colorize" : true,
+    "timezone" : "Europe/Kiev"
+  }
+}

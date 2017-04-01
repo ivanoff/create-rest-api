@@ -1,0 +1,15 @@
+{
+  "db" : {
+    "mongo" : {
+      "login" : "test",
+      "password" : "test",
+      "url" : "localhost:27017/myproject"
+    }
+  },
+  "log" : {
+    "hide" : true,
+    "level" : "debug",
+    "colorize" : false,
+    "timezone" : "Europe/London"
+  }
+}

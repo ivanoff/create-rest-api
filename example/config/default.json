@@ -1,0 +1,24 @@
+{
+  "listen" : {
+    "host" : "127.0.0.1",
+    "port" : 8877
+  },
+
+  "db" : {
+    "mongo" : {
+      "url" : "127.0.0.1",
+      "port" : 27017,
+      "name" : "test",
+      "login" : "admin",
+      "password" : "admin"
+    }
+  },
+
+  "log" : {
+    "level" : "debug",
+    "colorize" : true,
+    "timestamp": true,
+    "timezone" : "Europe/London"
+  }
+
+}

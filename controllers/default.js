@@ -69,7 +69,7 @@ exports = module.exports = function (name, model) {
     add: function (req, res, next) {
       var doc = req.body;
       v.validate(model.object, doc, function (err) {
-        if(err) return req._error.DATA_VALIDATION_ERROR(err);
+        if (err) return req._error.DATA_VALIDATION_ERROR(err);
 
         model.add(doc, function (err, result) {
           if (err) return req._error.show(err);
@@ -86,7 +86,7 @@ exports = module.exports = function (name, model) {
 
     replace: function (req, res, next) {
       var toUpdate = req.body;
-      v.validate(model.object, toUpdate, function (err) {
+      v.validate(model.object, toUpdate, { notRequired: req._updateOnly }, function (err) {
         if (err) return req._error.DATA_VALIDATION_ERROR(err);
 
         var search = { _id: req.params._id };
@@ -130,4 +130,3 @@ exports = module.exports = function (name, model) {
   };
 
 };
-

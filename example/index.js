@@ -26,11 +26,5 @@ api.registerModel('movies', {
   stars: { type: 'array', link: 'stars' },
   categories: { type: 'array', link: 'categories' },
 });
-// /directors/22/movies => /directors/22/movies/123 => ...
-// /stars/33/movies => /stars/33/movies/123 => ...
-// /categories/44/movies => /categories/44/movies/123 => ...
-// /movies/123/directors => /movies/123/directors/22
-// /movies/123/stars => /movies/123/stars/33
-// /movies/123/categories => /movies/123/categories/44
-api.start();
 
+api.start();

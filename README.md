@@ -9,46 +9,78 @@
 
 # Create REST API
 
-  v.0.1.1
+  v.1.0.1
 
   Create your REST API from scarch
 
 
 ## Install
 
-  `npm i -S create-rest-api`
+  `npm install --save create-rest-api`
 
 
-## Usage Example
+## Simple Usage Example
 
 ```javascript
-var Api = require('create-rest-api');
-var api = new Api({
-  db: { mongo: '127.0.0.1:27017/testAPI' }
-});
+// index1.js
+var Api = require('./create-rest-api');
+var api = new Api();
 
-api.registerModel('books', {
+api.registerModel('writers', {
   name: { type: 'string', required: true },
-  numberOfPages: { type: 'integer' },
-  category: { type: 'string', required: true, match: /^fiction|drama|religion|science|historical novel|other$/ },
-  author: {
-    name: { type: 'string' },
-    email: { type: 'email' }
-  }
+  sex: { type: 'string', match: /^M|F$/ }
 });
 
 api.start();
 ```
 
+```
+DB_URL=localhost:27017/test DB_AUTH=test:pass node index1.js
+```
+
 ## Terminal
 
-curl -X POST -H 'Content-Type: application/json' -d '{"name":"Bible","category":"religion","numberOfPages":1415}' 127.0.0.1:8877/books
-curl -X POST -H 'Content-Type: application/json' -d '{"name":"The Three Musketeers","author":{"name":"Alexandre Dumas"},"category":"historical novel"}' 127.0.0.1:8877/books
-curl -X GET 127.0.0.1:8877/books
-curl -X GET 127.0.0.1:8877/books/id
-curl -X PATCH 127.0.0.1:8877/books/id
-curl -X PUT 127.0.0.1:8877/books/id
-curl -X DELETE 127.0.0.1:8877/books/id
+- Add new document
+
+```curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers```
+```
+{"name":"Alexandre Dumas","_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","_links":{"self":{"href":"writers/5bdac691-7f6c-470f-94e7-24e7986e3dae"}}}
+```
+
+- Get all documents
+
+```curl 127.0.0.1:8877/writers```
+```
+[{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}]
+```
+
+- Get one document by id
+
+```curl 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae```
+```
+{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
+```
+
+- Update part of document
+
+```curl -X PATCH -H 'Content-Type: application/json' -d '{"sex":"M"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae```
+```
+{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas","sex":"M"}
+```
+
+- Replace document
+
+```curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae```
+```
+{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
+```
+
+- Delete document
+
+```curl -X DELETE 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae```
+```
+{"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
+```
 
 
 ## Change Log

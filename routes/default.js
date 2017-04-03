@@ -14,4 +14,3 @@ module.exports = function (name, controller, app) {
 
   app.delete('/' + name + '/:_id', controller.delete.bind(controller));
 };
-

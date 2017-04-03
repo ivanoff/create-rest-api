@@ -6,12 +6,10 @@ var chai = require('chai');
 var chaiHttp = require('chai-http');
 
 var expect = chai.expect;
-require('mocha-sinon');
-
 chai.use(chaiHttp);
 
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync(require('path').resolve(__dirname,'config/test.json')));
+var config = JSON.parse(fs.readFileSync(require('path').resolve(__dirname, 'config/test.json')));
 
 var optDb = config.db.mongo;
 var dbAuth = process.env.DB_AUTH ? process.env.DB_AUTH + '@'
@@ -35,176 +33,185 @@ app.registerModel('movies', {
   categories: { type: 'array', link: 'categories' },
 });
 
-//app._after();
-
-describe('App', function() {
-  describe('/categories', function() {
-    var id, idM;
-    it('mongodb mock connection', function(done) {
+describe('App', function () {
+  describe('/categories', function () {
+    var id;
+    var idM;
+    it('mongodb mock connection', function (done) {
       app._db.connect(dbUrl, done);
     });
-    it('add one', function(done) {
+
+    it('add one', function (done) {
       chai.request(app)
         .post('/categories')
-        .send({name: 'test'})
-        .end(function(err, res) {
+        .send({ name: 'test' })
+        .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
         });
     });
-    it('get all', function(done) {
+
+    it('get all', function (done) {
       chai.request(app)
         .get('/categories')
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
           id = res.body[0]._id;
           done();
         });
     });
-    it('get one', function(done) {
+
+    it('get one', function (done) {
       chai.request(app)
         .get('/categories/' + id)
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.have.property('name').eql('test');
           done();
         });
     });
-    it('add another one', function(done) {
+
+    it('add another one', function (done) {
       chai.request(app)
         .post('/categories')
-        .send({name: '123'})
-        .end(function(err, res) {
+        .send({ name: '123' })
+        .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
         });
     });
-    it('get all, but _fields, _sort, _start, _limit', function(done) {
+
+    it('get all, but _fields, _sort, _start, _limit', function (done) {
       chai.request(app)
         .get('/categories')
-        .query({_fields: 'name', _sort: '-name,_id', _start: 1, _limit: 1})
-        .end(function(err, res) {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.a('array');
-          done();
-        });
-    });
-    it('get all, but _fields, _sort, _start, _limit', function(done) {
-      chai.request(app)
-        .get('/categories')
-        .query({_fields: 'name', _sort: '-name,_id', _start: 1, _limit: 1})
-        .end(function(err, res) {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.a('array');
-          done();
-        });
-    });
-    it('get name is test', function(done) {
-      chai.request(app)
-        .get('/categories')
-        .query({name: 'test'})
-        .end(function(err, res) {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.a('array');
-          done();
-        });
-    });
-    it('get name is test', function(done) {
-      chai.request(app)
-        .get('/categories')
-        .query({name: 123})
-        .end(function(err, res) {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.a('array');
-          done();
-        });
-    });
-    it('get name is /te/', function(done) {
-      chai.request(app)
-        .get('/categories')
-        .query({name: '/te/'})
-        .end(function(err, res) {
+        .query({ _fields: 'name', _sort: '-name,_id', _start: 1, _limit: 1 })
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
           done();
         });
     });
 
-    it('change field', function(done) {
+    it('get all, but _fields, _sort, _start, _limit', function (done) {
+      chai.request(app)
+        .get('/categories')
+        .query({ _fields: 'name', _sort: '-name,_id', _start: 1, _limit: 1 })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          done();
+        });
+    });
+
+    it('get name is test', function (done) {
+      chai.request(app)
+        .get('/categories')
+        .query({ name: 'test' })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          done();
+        });
+    });
+
+    it('get name is test', function (done) {
+      chai.request(app)
+        .get('/categories')
+        .query({ name: 123 })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          done();
+        });
+    });
+
+    it('get name is /te/', function (done) {
+      chai.request(app)
+        .get('/categories')
+        .query({ name: '/te/' })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          done();
+        });
+    });
+
+    it('change field', function (done) {
       chai.request(app)
         .patch('/categories/' + id)
-//        .set('X-API-Key', 'foobar')
-        .send({name: 'test2'})
-        .end(function(err, res) {
+        .send({ name: 'test2' })
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
         });
     });
 
-    it('replace data', function(done) {
+    it('replace data', function (done) {
       chai.request(app)
         .put('/categories/' + id)
-        .send({name: 'test3'})
-        .end(function(err, res) {
+        .send({ name: 'test3' })
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
         });
     });
 
-    it('change field on unknown', function(done) {
+    it('change field on unknown', function (done) {
       chai.request(app)
         .patch('/categories/123')
-        .send({name: 'test2'})
-        .end(function(err, res) {
+        .send({ name: 'test2' })
+        .end(function (err, res) {
           expect(res).to.have.status(404);
           done();
         });
     });
 
-    it('replace data on unknown', function(done) {
+    it('replace data on unknown', function (done) {
       chai.request(app)
         .put('/categories/123')
-        .send({name: 'test3'})
-        .end(function(err, res) {
+        .send({ name: 'test3' })
+        .end(function (err, res) {
           expect(res).to.have.status(404);
           done();
         });
     });
 
-    it('add one', function(done) {
+    it('add one', function (done) {
       chai.request(app)
         .post('/movies')
-        .send({name: 'test-movie', categories:[id]})
-        .end(function(err, res) {
+        .send({ name: 'test-movie', categories: [id] })
+        .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
         });
     });
-    it('get all', function(done) {
+
+    it('get all', function (done) {
       chai.request(app)
         .get('/movies')
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
           idM = res.body[0]._id;
           done();
         });
     });
-    it('get one', function(done) {
+
+    it('get one', function (done) {
       chai.request(app)
         .get('/movies/' + idM)
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.have.property('name').eql('test-movie');
           done();
         });
     });
 
-    it('get related', function(done) {
+    it('get related', function (done) {
       chai.request(app)
         .get('/categories/' + id + '/movies')
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
           expect(res.body[0]).to.have.property('name').eql('test-movie');
@@ -212,10 +219,10 @@ describe('App', function() {
         });
     });
 
-    it('get related', function(done) {
+    it('get related', function (done) {
       chai.request(app)
         .get('/movies/' + idM + '/categories')
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
           expect(res.body[0]).to.have.property('name').eql('test');
@@ -223,44 +230,46 @@ describe('App', function() {
         });
     });
 
-    it('get related by id', function(done) {
+    it('get related by id', function (done) {
       chai.request(app)
-        .get('/categories/' + id + '/movies/' + idM )
-        .end(function(err, res) {
+        .get('/categories/' + id + '/movies/' + idM)
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
         });
     });
 
-    it('get related by id', function(done) {
+    it('get related by id', function (done) {
       chai.request(app)
-        .get('/movies/' + idM + '/categories/' + id )
-        .end(function(err, res) {
+        .get('/movies/' + idM + '/categories/' + id)
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
         });
     });
 
-    it('delete data', function(done) {
+    it('delete data', function (done) {
       chai.request(app)
         .delete('/categories/' + id)
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
         });
     });
-    it('delete same data', function(done) {
+
+    it('delete same data', function (done) {
       chai.request(app)
         .delete('/categories/' + id)
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(404);
           done();
         });
     });
-    it('delete unknown data', function(done) {
+
+    it('delete unknown data', function (done) {
       chai.request(app)
         .delete('/categories/' + id)
-        .end(function(err, res) {
+        .end(function (err, res) {
           expect(res).to.have.status(404);
           done();
         });

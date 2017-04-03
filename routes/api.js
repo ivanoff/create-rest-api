@@ -15,4 +15,3 @@ module.exports = function (app, models) {
   app.get('/API.html', apiController.html);
 
 };
-

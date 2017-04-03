@@ -1,6 +1,6 @@
 {
   "name": "create-rest-api",
-  "version": "0.1.1",
+  "version": "1.0.1",
   "description": "Create REST API",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,10 @@
     "RESTful",
     "RESTful API"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ivanoff/create-rest-api.git"
+  },
   "author": "Dimitry Ivanov <2@ivanoff.org.ua> # curl -A cv ivanoff.org.ua",
   "license": "MIT",
   "dependencies": {
@@ -31,10 +35,8 @@
     "chai-http": "^3.0.0",
     "coveralls": "^2.11.15",
     "istanbul": "^0.4.5",
-    "mocha": "^2.5.3",
-    "mocha-sinon": "^2.0.0",
+    "mocha": "^3.2.0",
     "mongo-mock": "^2.4.0",
-    "should": "^9.0.0",
-    "sinon": "^2.1.0"
+    "should": "^11.2.1"
   }
 }

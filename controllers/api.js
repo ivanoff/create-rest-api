@@ -25,12 +25,11 @@ exports.md = function (req, res, next) {
 };
 
 exports.swagger = function (req, res, next) {
-  res.status(200).json({to:'do'});
+  res.status(200).json({ to: 'do' });
   next();
 };
 
 exports.html = function (req, res, next) {
-  res.json({to:'do'});
+  res.json({ to: 'do' });
   next();
 };
-

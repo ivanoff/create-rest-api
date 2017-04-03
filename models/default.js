@@ -43,4 +43,3 @@ module.exports = function (name, model, db) {
 
   };
 };
-

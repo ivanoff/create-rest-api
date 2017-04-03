@@ -6,12 +6,10 @@ var chai = require('chai');
 var chaiHttp = require('chai-http');
 
 var expect = chai.expect;
-require('mocha-sinon');
-
 chai.use(chaiHttp);
 
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync(require('path').resolve(__dirname,'config/test.json')));
+var config = JSON.parse(fs.readFileSync(require('path').resolve(__dirname, 'config/test.json')));
 
 var optDb = config.db.mongo;
 var dbAuth = process.env.DB_AUTH ? process.env.DB_AUTH + '@'
@@ -35,38 +33,39 @@ app.registerModel('movies', {
   categories: { type: 'array', link: 'categories' },
 });
 
-//app._after();
+describe('api', function () {
 
-describe('api', function() {
-
-  it('/api.raml', function(done) {
+  it('/api.raml', function (done) {
     chai.request(app)
       .get('/api.raml')
-      .end(function(err, res) {
+      .end(function (err, res) {
         expect(res).to.have.status(200);
         done();
       });
   });
-  it('/api.swagger', function(done) {
+
+  it('/api.swagger', function (done) {
     chai.request(app)
       .get('/api.md')
-      .end(function(err, res) {
+      .end(function (err, res) {
         expect(res).to.have.status(200);
         done();
       });
   });
-  it('/api.swagger', function(done) {
+
+  it('/api.swagger', function (done) {
     chai.request(app)
       .get('/api.swagger')
-      .end(function(err, res) {
+      .end(function (err, res) {
         expect(res).to.have.status(200);
         done();
       });
   });
-  it('/api.html', function(done) {
+
+  it('/api.html', function (done) {
     chai.request(app)
       .get('/api.html')
-      .end(function(err, res) {
+      .end(function (err, res) {
         expect(res).to.have.status(200);
         done();
       });

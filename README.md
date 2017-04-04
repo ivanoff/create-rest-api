@@ -9,9 +9,9 @@
 
 # Create REST API
 
-  v.2.0.1
+### v.2.1.1
 
-  Create your REST API from scarch
+###  Create your REST API from scarch
 
 
 - [Instalation](#instalation)
@@ -23,6 +23,8 @@
 - [Searching](#searching)
 
 - [Filters and orders](#filters-and-orders)
+
+- [HATEOAS](#hateoas)
 
 - [Linked Usage Example](#linked-usage-example)
 
@@ -53,15 +55,15 @@ api.start();
 
 ### Methods
 
- Method | URL | Description | Posible errors
---------|-----|-------------|----------------
-GET | /writers | List of writers | 404: NOT_FOUND
-GET | /writers/{id} | Single writer info | 404: NOT_FOUND
-POST | /writers | Add new writer | 400: DATA_VALIDATION_ERROR
-PUT | /writers/{id} | Update some writer's information | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
-PATCH | /writers/{id} | Update all writer' record | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
-DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
-GET | /api.raml | Raml API documentation |
+ Method | URL | Description | Response | Posible errors
+--------|-----|-------------|----------|----------------
+GET | /writers | List of writers | 200 OK | 404 NOT_FOUND
+GET | /writers/{id} | Single writer info | 200 OK | 404 NOT_FOUND
+POST | /writers | Add new writer | 201 CREATED | 400 DATA_VALIDATION_ERRO
+PUT | /writers/{id} | Update some writer's information | 200 OK | 400 DATA_VALIDATION_ERROR, 404: NOT_FOUND
+PATCH | /writers/{id} | Update all writer' record | 200 OK | 400 DATA_VALIDATION_ERROR, 404 NOT_FOUND
+DELETE | /writers/{id} | Delete writer by id | 200 OK | 400 DATA_VALIDATION_ERROR, 404 NOT_FOUND
+GET | /api.raml | Raml API documentation | 200 OK |
 
 
 ## Start REST API server

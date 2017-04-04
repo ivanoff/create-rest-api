@@ -1,5 +1,13 @@
 # create-rest-api changelog
 
+## [2.1.1](https://github.com/ivanoff/create-rest-api/tree/2.1.1) (2017-04-04)
+[Full Changelog](https://github.com/ivanoff/create-rest-api/compare/2.1.1...2.0.1)
+
+**What Was Done:**
+
+- add synonyms to filters and orders
+
+
 ## [2.0.1](https://github.com/ivanoff/create-rest-api/tree/2.0.1) (2017-04-04)
 [Full Changelog](https://github.com/ivanoff/create-rest-api/compare/2.0.1...1.0.1)
 

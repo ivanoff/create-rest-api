@@ -6,19 +6,24 @@ exports = module.exports = function (name, model) {
 
   return {
     get: function (req, res, next) {
-      var start = parseInt(req.query._start || 0);
-      var limit = parseInt(req.query._limit || 10);
+      var q = req.query;
+      if (!q._fields) q._fields = q._filter;
+      if (!q._start) q._start = q._begin;
+      if (!q._sort) q._sort = q._order;
+
+      var start = parseInt(q._start || 0);
+      var limit = parseInt(q._limit || 10);
 
       var fields = {};
-      if (req.query._fields) {
-        var fieldsNames = req.query._fields.split(',');
+      if (q._fields) {
+        var fieldsNames = q._fields.split(',');
         for (var i = 0; i < fieldsNames.length; i++)
           fields[fieldsNames[i]] = 1;
       }
 
       var sort = {};
-      if (req.query._sort) {
-        var sortNames = req.query._sort.split(',');
+      if (q._sort) {
+        var sortNames = q._sort.split(',');
         for (var i = 0; i < sortNames.length; i++)
           sort[sortNames[i].replace(/^-/, '')] = (sortNames[i].indexOf('-') === 0) ? -1 : 1;
       }

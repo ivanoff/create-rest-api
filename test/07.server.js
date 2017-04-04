@@ -104,6 +104,17 @@ describe('App', function () {
         });
     });
 
+    it('get all, but _filter, _order, _begin, _limit', function (done) {
+      chai.request(app)
+        .get('/categories')
+        .query({ _filter: 'name', _order: '-name,_id', _begin: 1, _limit: 1 })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          done();
+        });
+    });
+
     it('get name is test', function (done) {
       chai.request(app)
         .get('/categories')

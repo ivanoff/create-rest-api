@@ -18,6 +18,8 @@
 
 - [Simple Usage Example](#simple-usage-example)
 
+- [Start API server](#start-api-server)
+
 - [Searching](#searching)
 
 - [Filters and orders](#filters-and-orders)
@@ -31,7 +33,7 @@
 
 ## Instalation
 
-  `npm install --save create-rest-api`
+  ```npm install --save create-rest-api```
 
 
 ## Simple Usage Example
@@ -49,15 +51,6 @@ api.registerModel('writers', {
 api.start();
 ```
 
-### Mongodb storage starting
-  ```DB_URL=localhost:27017/test DB_AUTH=test:pass node index.js```
-
-### Memory storage starting
-N.B.: In that case, all data will save in the memory and will be erased after restart
-
-  ```DB_STORAGE=memory node index.js```
-
-
 ### Methods
 
  Method | URL | Description | Posible errors
@@ -68,100 +61,51 @@ POST | /writers | Add new writer | 400: DATA_VALIDATION_ERROR
 PUT | /writers/{id} | Update some writer's information | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 PATCH | /writers/{id} | Update all writer' record | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+GET | /api.raml | Raml API documentation |
 
 
-### Examples
+## Start REST API server
 
-- Add new document
+- Mongodb storage starting
 
-```
-  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers
-  {"name":"Alexandre Dumas","_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","_links":{"self":{"href":"writers/5bdac691-7f6c-470f-94e7-24e7986e3dae"}}}
-```
+  ```DB_URL=localhost:27017/database DB_AUTH=user:password node index.js```
 
-- Get all documents
+- Memory storage starting (all data will save in the memory and will be erased after restart)
 
-```
-  curl 127.0.0.1:8877/writers
-  [{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}]
-```
-
-- Get one document by id
-
-```
-  curl 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
-  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
-```
-
-- Update part of document
-
-```
-  curl -X PATCH -H 'Content-Type: application/json' -d '{"sex":"M"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
-  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas","sex":"M"}
-```
-
-- Replace document
-
-```
-  curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
-  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
-```
-
-- Delete document
-
-```
-  curl -X DELETE 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
-  {"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
-```
+  ```DB_STORAGE=memory node index.js```
 
 
 ## Searching
 
-Define field name with searching text after ```?``` sign of the URL to find necessary resource. Searching text can be regular expression.
+Define field name with searching text after ```?``` in the URL to find necessary resource. Searching text can be regular expression.
 
-### Example
+### Examples
 
-For example, add two writers: Alexandra Ripley and Alexandre Dumas
-
-```
-  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandra Ripley","sex":"F"}' 127.0.0.1:8877/writers
-    {"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a","_links":{"self":{"href":"writers/1bec2412-cdd3-4e78-b22b-25a1006e016a"}}}
-  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas","sex":"M"}' 127.0.0.1:8877/writers
-    {"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b","_links":{"self":{"href":"writers/5e806693-727b-4956-b539-e797d5bcef2b"}}}
-```
-
-- Find ```M``` in writers
+- Find male writers
 
 ```
   curl 127.0.0.1:8877/writers?sex=M
     [{"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b"}]
 ```
 
-- Find name ```alex```, regular expression, case insensitive
+- Find writers with name begins with ```alex```, using regular expression, case insensitive
 
 ```
-  curl "127.0.0.1:8877/writers?name=/alex/i"
+  curl "127.0.0.1:8877/writers?name=/^alex/i"
     [{"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a"},{"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b"}]
-```
-
-- Find ```F``` writers, begin with ```alex```, regular expression, case insensitive
-
-```
-  curl "127.0.0.1:8877/writers?sex=F&name=/^alex/i"
-    [{"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a"}]
 ```
 
 
 ## Filters and orders
 
-All filter and orders parameters are located after ```?``` sign of the URL.
+All filter and orders parameters are located after ```?``` sign in the URL.
 
- Parameter name | Description
-----------------|-------------
-_fields | List field names to show, separate by comma
-_sort | List field names to sort, separate by comma, descending sort if begins with '-'
-_start | Start page
-_limit | Limit per page
+ Parameter name | Synonyms | Description
+----------------|---------|-------------
+_fields | _filter | List field names to show, separate by comma
+_sort | _order | List field names to sort, separate by comma, descending sort if begins with '-'
+_start | _begin | Start page
+_limit | | Limit per page
 
 
 ### Example
@@ -214,16 +158,6 @@ api.registerModel('books', {
 api.start();
 ```
 
-### Starting
-- Mongodb storage starting
-
-  ```DB_URL=localhost:27017/test DB_AUTH=test:pass node index.js```
-
-- Memory storage starting (all data will save in the memory and will be erased after restart)
-
-  ```DB_STORAGE=memory node index.js```
-
-
 ### Methods
 
  Method | URL | Description | Posible errors
@@ -242,6 +176,61 @@ PATCH | /writers/{id} | Update all writer's record | 400: DATA_VALIDATION_ERROR,
 PATCH | /books/{id} | Update all books's record | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 DELETE | /books/{id} | Delete book by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+GET | /api.raml | API documentation |
+
+### Examples
+
+- Add new document
+
+```
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers
+  {"name":"Alexandre Dumas","_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","_links":{"self":{"href":"writers/5bdac691-7f6c-470f-94e7-24e7986e3dae"}}}
+```
+
+- Get all documents
+
+```
+  curl 127.0.0.1:8877/writers
+  [{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}]
+```
+
+- Get one document by id
+
+```
+  curl 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
+```
+
+- Update part of document
+
+```
+  curl -X PATCH -H 'Content-Type: application/json' -d '{"sex":"M"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas","sex":"M"}
+```
+
+- Replace document
+
+```
+  curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
+```
+
+- Delete document
+
+```
+  curl -X DELETE 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
+```
+
+For example, add two writers: Alexandra Ripley and Alexandre Dumas
+
+```
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandra Ripley","sex":"F"}' 127.0.0.1:8877/writers
+    {"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a","_links":{"self":{"href":"writers/1bec2412-cdd3-4e78-b22b-25a1006e016a"}}}
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas","sex":"M"}' 127.0.0.1:8877/writers
+    {"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b","_links":{"self":{"href":"writers/5e806693-727b-4956-b539-e797d5bcef2b"}}}
+```
+
 
 ### Examples
 

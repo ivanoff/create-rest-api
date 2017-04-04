@@ -6,6 +6,7 @@
 **What Was Done:**
 
 - add synonyms to filters and orders
+- group curl examples
 
 
 ## [2.0.1](https://github.com/ivanoff/create-rest-api/tree/2.0.1) (2017-04-04)

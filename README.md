@@ -108,19 +108,7 @@ _start | _begin | Start page
 _limit | | Limit per page
 
 
-### Example
-
-Add two writers: Alexandra Ripley and Alexandre Dumas
-
-```
-  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandra Ripley"}' 127.0.0.1:8877/writers
-    {"name":"Alexandra Ripley","_id":"10b7d763-4ea4-4b56-924c-2e6b4b426b31","_links":{"self":{"href":"writers/10b7d763-4ea4-4b56-924c-2e6b4b426b31"}}}
-  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers
-    {"name":"Alexandre Dumas","_id":"171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a","_links":{"self":{"href":"writers/171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a"}}}
-  curl 127.0.0.1:8877/writers
-    [{"name":"Alexandra Ripley","_id":"10b7d763-4ea4-4b56-924c-2e6b4b426b31"},{"name":"Alexandre Dumas","_id":"171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a"}]
-
-```
+### Examples
 
 - Find all writers, show only ```name``` field, sorting by ```name```
 
@@ -178,7 +166,8 @@ DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: 
 DELETE | /books/{id} | Delete book by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 GET | /api.raml | API documentation |
 
-### Examples
+
+## Examples
 
 - Add new document
 
@@ -222,24 +211,18 @@ GET | /api.raml | API documentation |
   {"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
 ```
 
-For example, add two writers: Alexandra Ripley and Alexandre Dumas
+- Add two writers: Alexandra Ripley and Alexandre Dumas
 
 ```
   curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandra Ripley","sex":"F"}' 127.0.0.1:8877/writers
     {"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a","_links":{"self":{"href":"writers/1bec2412-cdd3-4e78-b22b-25a1006e016a"}}}
-  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas","sex":"M"}' 127.0.0.1:8877/writers
-    {"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b","_links":{"self":{"href":"writers/5e806693-727b-4956-b539-e797d5bcef2b"}}}
-```
-
-
-### Examples
-
-- Add new writer and couple books, related to him
-
-```
   curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas", "sex":"M"}' 127.0.0.1:8877/writers
   {"name":"Alexandre Dumas","sex":"M","_id":"6b9576dd-730a-41e1-97b3-41ee67cf9e4f","_links":{"self":{"href":"writers/6b9576dd-730a-41e1-97b3-41ee67cf9e4f"}}}
+```
 
+- Add couple books
+
+```
   curl -X POST -H 'Content-Type: application/json' -d '{"name":"The Three Musketeers", "writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"]}' 127.0.0.1:8877/books
   {"name":"The Three Musketeers","writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"],"_id":"7801cc6d-84f4-4506-8eaa-56e5369983fc","_links":{"self":{"href":"books/7801cc6d-84f4-4506-8eaa-56e5369983fc"}}}
 

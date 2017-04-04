@@ -1,6 +1,6 @@
 {
   "name": "create-rest-api",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Create REST API",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "API",
     "REST",
     "RESTful",
-    "RESTful API"
+    "RESTful API",
+    "HATEOAS"
   ],
   "repository": {
     "type": "git",

@@ -34,11 +34,12 @@ api.registerModel('writers', {
 api.start();
 ```
 
-### Memory storage starting
-```DB_STORAGE=memory node index.js```
-
 ### Mongodb storage starting
-```DB_URL=localhost:27017/test DB_AUTH=test:pass node index.js```
+  ```DB_URL=localhost:27017/test DB_AUTH=test:pass node index.js```
+
+### Memory storage starting
+  N.B.: All data will save in the memory and will be erased after restart
+  ```DB_STORAGE=memory node index.js```
 
 
 ### Methods
@@ -58,43 +59,43 @@ DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: 
 - Add new document
 
 ```
-curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers
+  {"name":"Alexandre Dumas","_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","_links":{"self":{"href":"writers/5bdac691-7f6c-470f-94e7-24e7986e3dae"}}}
 ```
-```{"name":"Alexandre Dumas","_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","_links":{"self":{"href":"writers/5bdac691-7f6c-470f-94e7-24e7986e3dae"}}}```
 
 - Get all documents
 
 ```
-curl 127.0.0.1:8877/writers
+  curl 127.0.0.1:8877/writers
+  [{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}]
 ```
-```[{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}]```
 
 - Get one document by id
 
-```curl 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae```
 ```
-{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
+  curl 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
 ```
 
 - Update part of document
 
 ```
-curl -X PATCH -H 'Content-Type: application/json' -d '{"sex":"M"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  curl -X PATCH -H 'Content-Type: application/json' -d '{"sex":"M"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas","sex":"M"}
 ```
-```{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas","sex":"M"}```
 
 - Replace document
 
 ```
-curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  curl -X PUT -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}
 ```
-```{"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae","name":"Alexandre Dumas"}```
 
 - Delete document
 
-```curl -X DELETE 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae```
 ```
-{"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
+  curl -X DELETE 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
+  {"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
 ```
 
 

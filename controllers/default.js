@@ -79,7 +79,7 @@ exports = module.exports = function (name, model) {
         doc._links = {};
         doc._links['/' + name + '/' + doc._id] = _this.defaultLinks;
 
-        var relKeys = req._relations? Object.keys(req._relations) : [];
+        var relKeys = Object.keys(req._relations);
         relKeys.forEach( function(key) {
           if(req._relations[key].table1 === name) {
             var urlId = '/' + key.replace( ':' + req._relations[key].name, doc._id);
@@ -105,7 +105,7 @@ exports = module.exports = function (name, model) {
           var url = '/' + name + '/' + doc._id;
           doc._links[url] = _this.defaultLinks;
 
-          var relKeys = req._relations? Object.keys(req._relations) : [];
+          var relKeys = Object.keys(req._relations);
           relKeys.forEach( function(key) {
             if(req._relations[key].table1 === name) {
               var urlId = '/' + key.replace( ':' + req._relations[key].name, doc._id);
@@ -142,7 +142,7 @@ exports = module.exports = function (name, model) {
             var url = '/' + name + '/' + doc._id;
             doc._links[url] = _this.defaultLinks;
 
-            var relKeys = req._relations? Object.keys(req._relations) : [];
+            var relKeys = Object.keys(req._relations);
             relKeys.forEach( function(key) {
               if(req._relations[key].table1 === name) {
                 var urlId = '/' + key.replace( ':' + req._relations[key].name, doc._id);

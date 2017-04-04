@@ -1,6 +1,6 @@
 {
   "name": "create-rest-api",
-  "version": "1.0.4",
+  "version": "2.0.1",
   "description": "Create REST API",
   "main": "index.js",
   "scripts": {

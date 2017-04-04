@@ -9,12 +9,27 @@
 
 # Create REST API
 
-  v.1.0.4
+  v.2.0.1
 
   Create your REST API from scarch
 
 
-## Install
+- [Instalation](#instalation)
+
+- [Simple Usage Example](#simple-usage-example)
+
+- [Searching](#searching)
+
+- [Filters and orders](#filters-and-orders)
+
+- [Linked Usage Example](#linked-usage-example)
+
+- [Error examples](#error-examples)
+
+- [Change Log](CHANGELOG.md)
+
+
+## Instalation
 
   `npm install --save create-rest-api`
 
@@ -38,7 +53,8 @@ api.start();
   ```DB_URL=localhost:27017/test DB_AUTH=test:pass node index.js```
 
 ### Memory storage starting
-  N.B.: All data will save in the memory and will be erased after restart
+N.B.: In that case, all data will save in the memory and will be erased after restart
+
   ```DB_STORAGE=memory node index.js```
 
 
@@ -96,6 +112,184 @@ DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: 
 ```
   curl -X DELETE 127.0.0.1:8877/writers/5bdac691-7f6c-470f-94e7-24e7986e3dae
   {"ok":1,"_id":"5bdac691-7f6c-470f-94e7-24e7986e3dae"}
+```
+
+
+## Searching
+
+Define field name with searching text after ```?``` sign of the URL to find necessary resource. Searching text can be regular expression.
+
+### Example
+
+For example, add two writers: Alexandra Ripley and Alexandre Dumas
+
+```
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandra Ripley","sex":"F"}' 127.0.0.1:8877/writers
+    {"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a","_links":{"self":{"href":"writers/1bec2412-cdd3-4e78-b22b-25a1006e016a"}}}
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas","sex":"M"}' 127.0.0.1:8877/writers
+    {"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b","_links":{"self":{"href":"writers/5e806693-727b-4956-b539-e797d5bcef2b"}}}
+```
+
+- Find ```M``` in writers
+
+```
+  curl 127.0.0.1:8877/writers?sex=M
+    [{"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b"}]
+```
+
+- Find name ```alex```, regular expression, case insensitive
+
+```
+  curl "127.0.0.1:8877/writers?name=/alex/i"
+    [{"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a"},{"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b"}]
+```
+
+- Find ```F``` writers, begin with ```alex```, regular expression, case insensitive
+
+```
+  curl "127.0.0.1:8877/writers?sex=F&name=/^alex/i"
+    [{"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a"}]
+```
+
+
+## Filters and orders
+
+All filter and orders parameters are located after ```?``` sign of the URL.
+
+ Parameter name | Description
+----------------|-------------
+_fields | List field names to show, separate by comma
+_sort | List field names to sort, separate by comma, descending sort if begins with '-'
+_start | Start page
+_limit | Limit per page
+
+
+### Example
+
+Add two writers: Alexandra Ripley and Alexandre Dumas
+
+```
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandra Ripley"}' 127.0.0.1:8877/writers
+    {"name":"Alexandra Ripley","_id":"10b7d763-4ea4-4b56-924c-2e6b4b426b31","_links":{"self":{"href":"writers/10b7d763-4ea4-4b56-924c-2e6b4b426b31"}}}
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas"}' 127.0.0.1:8877/writers
+    {"name":"Alexandre Dumas","_id":"171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a","_links":{"self":{"href":"writers/171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a"}}}
+  curl 127.0.0.1:8877/writers
+    [{"name":"Alexandra Ripley","_id":"10b7d763-4ea4-4b56-924c-2e6b4b426b31"},{"name":"Alexandre Dumas","_id":"171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a"}]
+
+```
+
+- Find all writers, show only ```name``` field, sorting by ```name```
+
+```
+  curl "127.0.0.1:8877/writers?_filter=name&_sort=name"
+    [{"name":"Alexandra Ripley","sex":"F","_id":"1bec2412-cdd3-4e78-b22b-25a1006e016a"},{"name":"Alexandre Dumas","sex":"M","_id":"5e806693-727b-4956-b539-e797d5bcef2b"}]
+```
+
+- Find ```alex``` in writers, case insensitive, show only ```name``` field, sort by ```name``` descending
+
+```
+  curl "127.0.0.1:8877/writers?name=/alex/i&_filter=name&_sort=-name"
+    [{"name":"Alexandre Dumas","_id":"171b51f5-1dc9-4b3c-ad1f-6af8c9a53c3a"},{"name":"Alexandra Ripley","_id":"10b7d763-4ea4-4b56-924c-2e6b4b426b31"}]
+```
+
+
+## Lnked Usage Example
+
+```javascript
+// index.js
+var Api = require('./create-rest-api');
+var api = new Api();
+
+api.registerModel('writers', {
+  name: { type: 'string', required: true },
+  sex: { type: 'any', one: ['M', 'F'] }
+});
+
+api.registerModel('books', {
+  name: { type: 'string', required: true },
+  year: { type: 'integer' },
+  writers: { type: 'array', link: 'writers' },
+});
+
+api.start();
+```
+
+### Starting
+- Mongodb storage starting
+
+  ```DB_URL=localhost:27017/test DB_AUTH=test:pass node index.js```
+
+- Memory storage starting (all data will save in the memory and will be erased after restart)
+
+  ```DB_STORAGE=memory node index.js```
+
+
+### Methods
+
+ Method | URL | Description | Posible errors
+--------|-----|-------------|----------------
+GET | /writers | List of writers | 404: NOT_FOUND
+GET | /books | List of books | 404: NOT_FOUND
+GET | /writers/{id} | Single writer info | 404: NOT_FOUND
+GET | /books/{id} | Single book info | 404: NOT_FOUND
+GET | /writers/{id}/books | All writer's books | 404: NOT_FOUND
+GET | /books/{id}/writers | List of writers, linked to book | 404: NOT_FOUND
+POST | /writers | Add new writer | 400: DATA_VALIDATION_ERROR
+POST | /books | Add new book | 400: DATA_VALIDATION_ERROR
+PUT | /writers/{id} | Update some writer's information | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+PUT | /books/{id} | Update some book's information | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+PATCH | /writers/{id} | Update all writer's record | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+PATCH | /books/{id} | Update all books's record | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+DELETE | /writers/{id} | Delete writer by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+DELETE | /books/{id} | Delete book by id | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
+
+### Examples
+
+- Add new writer and couple books, related to him
+
+```
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"Alexandre Dumas", "sex":"M"}' 127.0.0.1:8877/writers
+  {"name":"Alexandre Dumas","sex":"M","_id":"6b9576dd-730a-41e1-97b3-41ee67cf9e4f","_links":{"self":{"href":"writers/6b9576dd-730a-41e1-97b3-41ee67cf9e4f"}}}
+
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"The Three Musketeers", "writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"]}' 127.0.0.1:8877/books
+  {"name":"The Three Musketeers","writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"],"_id":"7801cc6d-84f4-4506-8eaa-56e5369983fc","_links":{"self":{"href":"books/7801cc6d-84f4-4506-8eaa-56e5369983fc"}}}
+
+  curl -X POST -H 'Content-Type: application/json' -d '{"name":"The Count of Monte Cristo", "writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"]}' 127.0.0.1:8877/books
+  {"name":"The Count of Monte Cristo","writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"],"_id":"5435b002-ef7b-4ff1-9dd1-9a0ff22c829a","_links":{"self":{"href":"books/5435b002-ef7b-4ff1-9dd1-9a0ff22c829a"}}}
+```
+
+- Find books by writer
+
+```
+  curl 127.0.0.1:8877/writers/6b9576dd-730a-41e1-97b3-41ee67cf9e4f/books
+  [{"name":"The Three Musketeers","writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"],"_id":"7801cc6d-84f4-4506-8eaa-56e5369983fc"},{"name":"The Count of Monte Cristo","writers":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"],"_id":"5435b002-ef7b-4ff1-9dd1-9a0ff22c829a"}]
+```
+
+- Find writers by books
+
+```
+  curl 127.0.0.1:8877/books/7801cc6d-84f4-4506-8eaa-56e5369983fc/writers
+  [{"name":"Alexandre Dumas","sex":"M","_id":"6b9576dd-730a-41e1-97b3-41ee67cf9e4f"}]
+```
+
+
+## Error examples
+
+```
+  curl 127.0.0.1:8877/writers
+  {"status":404,"name":"NOT_FOUND","message":"writers not found","developerMessage":{}}
+
+  curl 127.0.0.1:8877/writers/123
+  {"status":404,"name":"NOT_FOUND","message":"writer not found","developerMessage":{"_id":"123"}}
+
+  curl -X POST -H 'Content-Type: application/json' -d '{"sex":"yes"}' 127.0.0.1:8877/writers
+  {"status":400,"name":"DATA_VALIDATION_ERROR","message":"Field .sex not matched with type any. Field .name not found","developerMessage":{"text":"Field .sex not matched with type any. Field .name not found","notMatched":{".sex":"any"},"notFound":[".name"]}}
+
+  curl 127.0.0.1:8877/writers/6b9576dd-730a-41e1-97b3-41ee67cf9e4f/books
+  {"status":404,"name":"NOT_FOUND","message":"books not found","developerMessage":{"writers":{"$in":["6b9576dd-730a-41e1-97b3-41ee67cf9e4f"]}}}
+
+  curl -X DELETE 127.0.0.1:8877/books/d3f49bee-510e-44b5-9ee6-0e7440b053bc
+  {"status":404,"name":"NOT_FOUND","message":"book not found","developerMessage":{"_id":"d3f49bee-510e-44b5-9ee6-0e7440b053bc"}}
 ```
 
 

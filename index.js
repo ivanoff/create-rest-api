@@ -33,9 +33,5 @@ function start() {
   dbUrl += '/' + (optDb.name || 'default');
   dbUrl = 'mongodb://' + dbAuth + dbUrl;
 
-//  var MongoClient = (process.env.DB_STORAGE === 'memory')?
-console.log(dbUrl);
-//  if(process.env.DB_STORAGE === 'memory')
-
   app._start(HOST, PORT, dbUrl);
 }

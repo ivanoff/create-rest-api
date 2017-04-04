@@ -33,7 +33,7 @@ describe('Mongo', function () {
 
   describe('Default', function () {
     it('Connect', function (done) {
-      process.env.NODE_ENV = 'develop';
+      process.env.DB_STORAGE = 'mongo';
       mongo.connect(dbUrl, function (err) {
         expect(err).to.be.an('object');
         done();

@@ -28,10 +28,14 @@ function start() {
   var dbAuth = process.env.DB_AUTH ? process.env.DB_AUTH + '@'
     : optDb.login ? optDb.login + ':' + optDb.password + '@'
     : '';
-  var dbUrl = process.env.DB_URL || optDb.url;
-  if (optDb.port) dbUrl += ':' + optDb.port;
-  if (optDb.name) dbUrl += '/' + optDb.name;
+  var dbUrl = process.env.DB_URL || optDb.url || 'localhost';
+  dbUrl += ':' + (optDb.port || 27017);
+  dbUrl += '/' + (optDb.name || 'default');
   dbUrl = 'mongodb://' + dbAuth + dbUrl;
+
+//  var MongoClient = (process.env.DB_STORAGE === 'memory')?
+console.log(dbUrl);
+//  if(process.env.DB_STORAGE === 'memory')
 
   app._start(HOST, PORT, dbUrl);
 }

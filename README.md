@@ -127,6 +127,11 @@ _limit | | Limit per page
 ```
 
 
+## HATEOAS
+
+Yes, we can.
+
+
 ## Lnked Usage Example
 
 ```javascript

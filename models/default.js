@@ -30,8 +30,6 @@ module.exports = function (name, model, db) {
 
     add: function (data, next) {
       data._id = uuid.v4();
-//console.log(rel);
-//      data[relation.field2] = { $in: a };
       db.collection(name).insert(data, next);
     },
 

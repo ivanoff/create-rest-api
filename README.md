@@ -184,7 +184,9 @@ GET | /books/{id} | Single book info | 404: NOT_FOUND
 GET | /writers/{id}/books | All writer's books | 404: NOT_FOUND
 GET | /books/{id}/writers | List of writers, linked to book | 404: NOT_FOUND
 POST | /writers | Add new writer | 400: DATA_VALIDATION_ERROR
+POST | /writers/{id}/books | Add new writer's books | 400: DATA_VALIDATION_ERROR
 POST | /books | Add new book | 400: DATA_VALIDATION_ERROR
+POST | /books/{id}/writers | Add writer, linked to book | 400: DATA_VALIDATION_ERROR
 PUT | /writers/{id} | Update some writer's information | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 PUT | /books/{id} | Update some book's information | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND
 PATCH | /writers/{id} | Update all writer's record | 400: DATA_VALIDATION_ERROR, 404: NOT_FOUND

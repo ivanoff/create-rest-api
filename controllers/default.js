@@ -19,7 +19,8 @@ exports = module.exports = function (name, model) {
         if(relations[key].table1 === name) {
           var urlId = '/' + key.replace( ':' + relations[key].name, id);
           res[urlId] = {};
-          res[urlId][relations[key].table2] = 'GET';
+          res[urlId]['get '+relations[key].table2] = 'GET';
+          res[urlId]['add '+relations[key].table2] = 'POST';
         }
       });
       return res;
@@ -107,10 +108,10 @@ exports = module.exports = function (name, model) {
       v.validate(model.object, doc, function (err) {
         if (err) return req._error.DATA_VALIDATION_ERROR(err);
 
+        // Update current document relation data
         var rel = req._relations[req.route.path.replace(/^\/+/, '')];
-        if (rel && req.params[rel.name] && rel.type) {
-          rel.data = req.params[rel.name];
-          if(rel.type === 'array') {
+        if (rel && (rel.data = req.params[rel.name]) && rel.type2) {
+          if(rel.type2 === 'array') {
             if(!doc[rel.field2]) doc[rel.field2] = [];
             doc[rel.field2].push(rel.data);
           } else {
@@ -120,6 +121,20 @@ exports = module.exports = function (name, model) {
 
         model.add(doc, function (err, result) {
           if (err) return req._error.show(err);
+
+          // Update related document current data
+          if (rel && rel.type1) {
+            var m = req.models[rel.table1];
+            m.get({_id:rel.data}, {}, {}, 0, 1, null, function(err,data){
+              if(rel.type1 === 'array') {
+                if(!data[0][rel.field1]) data[0][rel.field1] = [];
+                data[0][rel.field1].push(doc._id);
+              } else {
+                data[0][rel.field1] = doc._id;
+              }
+              m.update(rel.data, {$set: data[0]}, function(){});
+            });
+          }
 
           doc._links = _this.makeLinks(name, doc._id, req._relations);
 

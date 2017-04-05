@@ -42,7 +42,7 @@
 
 ```javascript
 // index.js
-var Api = require('./create-rest-api');
+var Api = require('create-rest-api');
 var api = new Api();
 
 api.registerModel('writers', {
@@ -136,7 +136,7 @@ Yes, we can.
 
 ```javascript
 // index.js
-var Api = require('./create-rest-api');
+var Api = require('create-rest-api');
 var api = new Api();
 
 api.registerModel('writers', {

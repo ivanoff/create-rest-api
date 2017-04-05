@@ -106,8 +106,8 @@ All filter and orders parameters are located after ```?``` sign in the URL.
 ----------------|---------|-------------
 _fields | _filter | List field names to show, separate by comma
 _sort | _order | List field names to sort, separate by comma, descending sort if begins with '-'
-_start | _begin | Start page
-_limit | | Limit per page
+_start | _begin, _page | Start page
+_limit | _per_page | Limit per page
 
 
 ### Examples

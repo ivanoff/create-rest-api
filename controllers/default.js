@@ -29,7 +29,8 @@ exports = module.exports = function (name, model) {
       var _this = this;
       var q = req.query;
       if (!q._fields) q._fields = q._filter;
-      if (!q._start) q._start = q._begin;
+      if (!q._start) q._start = q._begin || q._page;
+      if (!q._limit) q._limit = q._per_page;
       if (!q._sort) q._sort = q._order;
 
       var start = parseInt(q._start || 0);

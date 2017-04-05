@@ -115,6 +115,17 @@ describe('App', function () {
         });
     });
 
+    it('get all, but _page, _per_page', function (done) {
+      chai.request(app)
+        .get('/categories')
+        .query({ _page: 1, _per_page: 1 })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          done();
+        });
+    });
+
     it('get name is test', function (done) {
       chai.request(app)
         .get('/categories')

@@ -27,16 +27,22 @@ app.registerModel('categories', {
   name: { type: 'string', required: true },
 });
 
+app.registerModel('status', {
+  name: { type: 'string', required: true },
+});
+
 app.registerModel('movies', {
   name: { type: 'string', required: true },
   year: { type: 'integer' },
   categories: { type: 'array', link: 'categories' },
+  status: { type: 'uuid', link: 'status' },
 });
 
 describe('App', function () {
   describe('/categories', function () {
     var id;
     var idM;
+    var idS;
     it('mongodb mock connection', function (done) {
       app._db.connect(dbUrl, done);
     });
@@ -108,17 +114,6 @@ describe('App', function () {
       chai.request(app)
         .get('/categories')
         .query({ _filter: 'name', _order: '-name,_id', _begin: 1, _limit: 1 })
-        .end(function (err, res) {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.a('array');
-          done();
-        });
-    });
-
-    it('get all, but _page, _per_page', function (done) {
-      chai.request(app)
-        .get('/categories')
-        .query({ _page: 1, _per_page: 1 })
         .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
@@ -266,6 +261,118 @@ describe('App', function () {
         .get('/movies/' + idM + '/categories/' + id)
         .end(function (err, res) {
           expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    it('post related', function (done) {
+      chai.request(app)
+        .post('/categories/' + id + '/movies')
+        .send({ name: 'test4', categories: [id] })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('post related', function (done) {
+      chai.request(app)
+        .post('/movies/' + idM + '/categories')
+        .send({ name: 'test5' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('post related again', function (done) {
+      chai.request(app)
+        .post('/categories/' + id + '/movies')
+        .send({ name: 'test4' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('post related again', function (done) {
+      chai.request(app)
+        .post('/movies/' + idM + '/categories')
+        .send({ name: 'test5' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get related by id', function (done) {
+      chai.request(app)
+        .get('/movies/' + idM + '/categories/' + id)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    it('post related status', function (done) {
+      chai.request(app)
+        .post('/movies/' + idM + '/status')
+        .send({ name: 'status1' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          idS = res.body._id;
+          done();
+        });
+    });
+
+    it('post related status', function (done) {
+      chai.request(app)
+        .post('/status/' + idS + '/movies')
+        .send({ name: 'movie3s1' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('post related status', function (done) {
+      chai.request(app)
+        .post('/movies/' + idM + '/status')
+        .send({ name: 'status1' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          idS = res.body._id;
+          done();
+        });
+    });
+
+    it('post related status', function (done) {
+      chai.request(app)
+        .post('/status/' + idS + '/movies')
+        .send({ name: 'movie3s1' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('post movies', function (done) {
+      chai.request(app)
+        .post('/movies')
+        .send({ name: 'm0' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          idM = res.body._id;
+          done();
+        });
+    });
+
+    it('post related categories', function (done) {
+      chai.request(app)
+        .post('/movies/' + idM + '/categories')
+        .send({ name: 'movie3c1' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
           done();
         });
     });

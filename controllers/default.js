@@ -107,6 +107,17 @@ exports = module.exports = function (name, model) {
       v.validate(model.object, doc, function (err) {
         if (err) return req._error.DATA_VALIDATION_ERROR(err);
 
+        var rel = req._relations[req.route.path.replace(/^\/+/, '')];
+        if (rel && req.params[rel.name] && rel.type) {
+          rel.data = req.params[rel.name];
+          if(rel.type === 'array') {
+            if(!doc[rel.field2]) doc[rel.field2] = [];
+            doc[rel.field2].push(rel.data);
+          } else {
+            doc[rel.field2] = rel.data;
+          }
+        }
+
         model.add(doc, function (err, result) {
           if (err) return req._error.show(err);
 

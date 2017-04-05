@@ -9,7 +9,7 @@
 
 # Create REST API
 
-### v.2.1.4
+### v.2.2.1
 
 ###  Create your REST API from scarch
 
@@ -59,7 +59,7 @@ api.start();
 --------|-----|-------------|----------|----------------
 GET | /writers | List of writers | 200 OK | 404 NOT_FOUND
 GET | /writers/{id} | Single writer info | 200 OK | 404 NOT_FOUND
-POST | /writers | Add new writer | 201 CREATED | 400 DATA_VALIDATION_ERRO
+POST | /writers | Add new writer | 201 CREATED | 400 DATA_VALIDATION_ERROR
 PUT | /writers/{id} | Update some writer's information | 200 OK | 400 DATA_VALIDATION_ERROR, 404: NOT_FOUND
 PATCH | /writers/{id} | Update all writer' record | 200 OK | 400 DATA_VALIDATION_ERROR, 404 NOT_FOUND
 DELETE | /writers/{id} | Delete writer by id | 200 OK | 400 DATA_VALIDATION_ERROR, 404 NOT_FOUND
@@ -72,7 +72,7 @@ GET | /api.raml | Raml API documentation | 200 OK |
 
   ```DB_URL=localhost:27017/database DB_AUTH=user:password node index.js```
 
-- Memory storage starting (all data will save in the memory and will be erased after restart)
+- Memory storage starting (all data will save in the memory and will be erased after restart, no horizontal scalability)
 
   ```DB_STORAGE=memory node index.js```
 
@@ -129,7 +129,27 @@ _limit | | Limit per page
 
 ## HATEOAS
 
-Yes, we can.
+  Each response is complemented by ```_links``` object which refer to other methods and resources using URIs as key. For example, result of POST response:
+
+```{"name":"Alexandra Ripley","sex":"F","_id":"40abf64d-a317-4735-a8d2-a8fe08fd4a5b","_links":{"/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b":{"self":"GET","update":"PUT","replace":"PATCH","delete":"DELETE"},"/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b/books":{"books":"GET"}}}```
+
+  This document includes links to both ```/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b``` collection and ```/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b/books``` resource
+
+```
+  {
+    "_links": {
+      "/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b": {
+        "self":"GET",
+        "update":"PUT",
+        "replace":"PATCH",
+        "delete":"DELETE"
+      },
+      "/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b/books": {
+        "books":"GET"
+      }
+    }
+  }
+```
 
 
 ## Lnked Usage Example

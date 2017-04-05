@@ -5,14 +5,28 @@ var _ = require('lodash');
 exports = module.exports = function (name, model) {
 
   return {
-    defaultLinks: {
-      self: 'GET',
-      update: 'PUT',
-      replace: 'PATCH',
-      delete: 'DELETE',
+    makeLinks: function(name, id, relations) {
+      var res = {};
+      res['/' + name + '/' + id] = {
+        self: 'GET',
+        update: 'PUT',
+        replace: 'PATCH',
+        delete: 'DELETE',
+      };
+
+      var relKeys = Object.keys(relations);
+      relKeys.forEach( function(key) {
+        if(relations[key].table1 === name) {
+          var urlId = '/' + key.replace( ':' + relations[key].name, id);
+          res[urlId] = {};
+          res[urlId][relations[key].table2] = 'GET';
+        }
+      });
+      return res;
     },
 
     get: function (req, res, next) {
+      var _this = this;
       var q = req.query;
       if (!q._fields) q._fields = q._filter;
       if (!q._start) q._start = q._begin;
@@ -63,6 +77,10 @@ exports = module.exports = function (name, model) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name, search);
 
+        docs.forEach(function(doc) {
+          doc._links = _this.makeLinks(name, doc._id, req._relations);
+        });
+
         res.json(docs);
       });
     },
@@ -76,17 +94,7 @@ exports = module.exports = function (name, model) {
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
 
         var doc = docs[0];
-        doc._links = {};
-        doc._links['/' + name + '/' + doc._id] = _this.defaultLinks;
-
-        var relKeys = Object.keys(req._relations);
-        relKeys.forEach( function(key) {
-          if(req._relations[key].table1 === name) {
-            var urlId = '/' + key.replace( ':' + req._relations[key].name, doc._id);
-            doc._links[urlId] = {};
-            doc._links[urlId][req._relations[key].table2] = 'GET';
-          }
-        });
+        doc._links = _this.makeLinks(name, doc._id, req._relations);
 
         res.json(doc);
       });
@@ -101,20 +109,9 @@ exports = module.exports = function (name, model) {
         model.add(doc, function (err, result) {
           if (err) return req._error.show(err);
 
-          doc._links = {};
-          var url = '/' + name + '/' + doc._id;
-          doc._links[url] = _this.defaultLinks;
+          doc._links = _this.makeLinks(name, doc._id, req._relations);
 
-          var relKeys = Object.keys(req._relations);
-          relKeys.forEach( function(key) {
-            if(req._relations[key].table1 === name) {
-              var urlId = '/' + key.replace( ':' + req._relations[key].name, doc._id);
-              doc._links[urlId] = {};
-              doc._links[urlId][req._relations[key].table2] = 'GET';
-            }
-          });
-
-          res.location(url);
+          res.location('/' + name + '/' + doc._id);
           res.status(201).json(doc);
         });
       });
@@ -138,20 +135,9 @@ exports = module.exports = function (name, model) {
           model.update(req.params._id, toUpdate, function (err, doc) {
             if (err) return req._error.show(err);
 
-            doc._links = {};
-            var url = '/' + name + '/' + doc._id;
-            doc._links[url] = _this.defaultLinks;
+            doc._links = _this.makeLinks(name, doc._id, req._relations);
 
-            var relKeys = Object.keys(req._relations);
-            relKeys.forEach( function(key) {
-              if(req._relations[key].table1 === name) {
-                var urlId = '/' + key.replace( ':' + req._relations[key].name, doc._id);
-                doc._links[urlId] = {};
-                doc._links[urlId][req._relations[key].table2] = 'GET';
-              }
-            });
-
-            res.location(url);
+            res.location('/' + name + '/' + doc._id);
             res.status(200).json(toUpdate);
           });
 

@@ -395,6 +395,15 @@ describe('App', function () {
         });
     });
 
+    it('delete all data', function (done) {
+      chai.request(app)
+        .delete('/movies')
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
     it('delete unknown data', function (done) {
       chai.request(app)
         .delete('/categories/' + id)

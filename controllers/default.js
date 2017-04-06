@@ -186,12 +186,12 @@ exports = module.exports = function (name, model) {
     },
 
     delete: function (req, res, next) {
-      var search = { _id: req.params._id };
+      var search = req.params._id? { _id: req.params._id } : {};
       model.delete(search, function (err, doc) {
         if (err) return req._error.show(err);
         if (!doc || !doc.result.n) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
 
-        res.json({ ok: 1, _id: req.params._id });
+        res.json({ ok: doc.result.n, _id: _.map(doc.ops, '_id') });
       });
     },
 

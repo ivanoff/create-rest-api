@@ -26,6 +26,23 @@ exports = module.exports = function (name, model) {
       return res;
     },
 
+    getRelationsData: function (req) {
+      var rel = req._relations[req.route.path.replace(/^\/+/, '')];
+      if (rel && req.params[rel.name]) rel.data = req.params[rel.name];
+      return rel;
+    },
+
+    updateRelationsDoc: function (rel, doc, type, field) {
+      if(!rel || !doc || !rel[type] || !rel.data) return doc;
+      if(rel[type] === 'array') {
+        if(!doc[rel[field]]) doc[rel[field]] = [];
+        doc[rel[field]].push(rel.data);
+      } else {
+        doc[rel[field]] = rel.data;
+      }
+      return doc;
+    },
+
     get: function (req, res, next) {
       var _this = this;
       var q = req.query;
@@ -65,12 +82,7 @@ exports = module.exports = function (name, model) {
         }
       }
 
-      var rel = req._relations[req.route.path.replace(/^\/+/, '')];
-      if (rel && req.params[rel.name]) {
-        rel.data = req.params[rel.name];
-      } else {
-        rel = null;
-      }
+      var rel = _this.getRelationsData(req);
 
       req._log.debug(req._id, name, 'model.get(',
         [search, fields, sort, start, limit, rel].prettyJSON().join(', '), ')');
@@ -100,23 +112,6 @@ exports = module.exports = function (name, model) {
 
         res.json(doc);
       });
-    },
-
-    getRelationsData: function (req) {
-      var rel = req._relations[req.route.path.replace(/^\/+/, '')];
-      if (rel && req.params[rel.name]) rel.data = req.params[rel.name];
-      return rel;
-    },
-
-    updateRelationsDoc: function (rel, doc, type, field) {
-      if(!rel || !doc || !rel[type] || !rel.data) return doc;
-      if(rel[type] === 'array') {
-        if(!doc[rel[field]]) doc[rel[field]] = [];
-        doc[rel[field]].push(rel.data);
-      } else {
-        doc[rel[field]] = rel.data;
-      }
-      return doc;
     },
 
     add: function (req, res, next) {

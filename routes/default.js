@@ -6,6 +6,7 @@
 module.exports = function (name, controller, app) {
   app.get('/' + name, controller.get.bind(controller));
   app.post('/' + name, controller.add.bind(controller));
+  app.delete('/' + name, controller.delete.bind(controller));
 
   app.get('/' + name + '/:_id', controller.getById.bind(controller));
 

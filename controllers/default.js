@@ -8,20 +8,26 @@ exports = module.exports = function (name, model) {
     makeLinks: function(name, id, relations) {
       var res = {};
       res['/' + name + '/' + id] = {
-        self: 'GET',
-        update: 'PUT',
-        replace: 'PATCH',
-        delete: 'DELETE',
+        GET: 'self',
+        PUT: 'update',
+        PATCH: 'replace',
+        DELETE: 'delete',
+      };
+
+      res['/' + name] = {
+        GET: 'get all ' + name,
+        POST: 'add new resource to ' + name,
+        DELETE: 'erase ' + name,
       };
 
       var relKeys = Object.keys(relations);
       relKeys.forEach( function(key) {
-        if(relations[key].table1 === name) {
-          var urlId = '/' + key.replace( ':' + relations[key].name, id);
-          res[urlId] = {};
-          res[urlId]['get '+relations[key].table2] = 'GET';
-          res[urlId]['add '+relations[key].table2] = 'POST';
-        }
+        if(relations[key].table1 === name)
+          res['/' + key.replace( ':' + relations[key].name, id)] = {
+            GET: 'get '+relations[key].table2,
+            POST: 'add '+relations[key].table2,
+            DELETE: 'delete '+relations[key].table2,
+          };
       });
       return res;
     },

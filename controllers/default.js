@@ -102,6 +102,23 @@ exports = module.exports = function (name, model) {
       });
     },
 
+    getRelationsData: function (req) {
+      var rel = req._relations[req.route.path.replace(/^\/+/, '')];
+      if (rel && req.params[rel.name]) rel.data = req.params[rel.name];
+      return rel;
+    },
+
+    updateRelationsDoc: function (rel, doc, type, field) {
+      if(!rel || !doc || !rel[type] || !rel.data) return doc;
+      if(rel[type] === 'array') {
+        if(!doc[rel[field]]) doc[rel[field]] = [];
+        doc[rel[field]].push(rel.data);
+      } else {
+        doc[rel[field]] = rel.data;
+      }
+      return doc;
+    },
+
     add: function (req, res, next) {
       var _this = this;
       var doc = req.body;
@@ -109,30 +126,20 @@ exports = module.exports = function (name, model) {
         if (err) return req._error.DATA_VALIDATION_ERROR(err);
 
         // Update current document relation data
-        var rel = req._relations[req.route.path.replace(/^\/+/, '')];
-        if (rel && (rel.data = req.params[rel.name]) && rel.type2) {
-          if(rel.type2 === 'array') {
-            if(!doc[rel.field2]) doc[rel.field2] = [];
-            doc[rel.field2].push(rel.data);
-          } else {
-            doc[rel.field2] = rel.data;
-          }
-        }
+        var rel = _this.getRelationsData(req);
+        doc = _this.updateRelationsDoc(rel, doc, 'type2', 'field2');
 
         model.add(doc, function (err, result) {
           if (err) return req._error.show(err);
 
           // Update related document current data
           if (rel && rel.type1) {
+            var id = rel.data;
             var m = req.models[rel.table1];
-            m.get({_id:rel.data}, {}, {}, 0, 1, null, function(err,data){
-              if(rel.type1 === 'array') {
-                if(!data[0][rel.field1]) data[0][rel.field1] = [];
-                data[0][rel.field1].push(doc._id);
-              } else {
-                data[0][rel.field1] = doc._id;
-              }
-              m.update(rel.data, {$set: data[0]}, function(){});
+            m.get({_id: id}, {}, {}, 0, 1, null, function(err,data){
+              rel.data = doc._id;
+              data[0] = _this.updateRelationsDoc(rel, data[0], 'type1', 'field1');
+              m.update(id, {$set: data[0]}, function(){});
             });
           }
 

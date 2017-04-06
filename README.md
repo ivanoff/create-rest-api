@@ -138,14 +138,21 @@ _limit | _per_page | Limit per page
 ```
   {
     "_links": {
-      "/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b": {
-        "self":"GET",
-        "update":"PUT",
-        "replace":"PATCH",
-        "delete":"DELETE"
+      "/writers/75fc9be7-52b7-419a-8f4c-effa8eb0bacc": {
+        "GET":"self",
+        "PUT":"update",
+        "PATCH":"replace",
+        "DELETE":"delete"
       },
-      "/writers/40abf64d-a317-4735-a8d2-a8fe08fd4a5b/books": {
-        "books":"GET"
+      "/writers": {
+        "GET":"get all writers",
+        "POST":"add new resource to writers",
+        "DELETE":"erase writers"
+      },
+      "/writers/75fc9be7-52b7-419a-8f4c-effa8eb0bacc/books": {
+        "GET":"get books",
+        "POST":"add books",
+        "DELETE":"delete books"
       }
     }
   }

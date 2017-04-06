@@ -186,13 +186,38 @@ exports = module.exports = function (name, model) {
     },
 
     delete: function (req, res, next) {
-      var search = req.params._id? { _id: req.params._id } : {};
-      model.delete(search, function (err, doc) {
-        if (err) return req._error.show(err);
-        if (!doc || !doc.result.n) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
+      var rel = this.getRelationsData(req);
+      if(!rel) {
+        var search = req.params._id? { _id: req.params._id } : {};
+        model.delete(search, function (err, doc) {
+          if (err) return req._error.show(err);
+          if (!doc || !doc.result.n) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
 
-        res.json({ ok: doc.result.n, _id: _.map(doc.ops, '_id') });
-      });
+          res.json({ ok: 1, deleted: _.map(doc.ops, '_id'), updated: [] });
+        });
+      } else {
+        var m = req.models[rel.table2];
+        var search = {};
+        search[rel.field2] = { $in: [rel.data] };
+        m.get(search, {}, {}, null, null, null, function (err, doc) {
+          var deleted = [];
+          var updated = [];
+          doc.forEach( function(d) {
+            var index = d[rel.field2].indexOf(rel.data);
+            if (index > -1) {
+              d[rel.field2].splice(index, 1);
+            }
+            if(!d[rel.field2]) {
+              m.delete({_id: d._id}, function(){})
+              deleted.push(d._id);
+            } else {
+              m.update(d._id, d, function(){})
+              updated.push(d._id);
+            }
+          });
+          res.json({ ok: 1, deleted: deleted, updated: updated });
+        })
+      }
     },
 
   };

@@ -7,6 +7,7 @@
 
 - HATEOAS improvements
 - add POST to related documents
+- add DELETE method to erase all resources in collection
 
 
 ## [2.1.1](https://github.com/ivanoff/create-rest-api/tree/2.1.1) (2017-04-04)

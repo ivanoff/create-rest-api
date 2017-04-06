@@ -24,7 +24,10 @@ module.exports = function (name, model, db) {
           db.collection(name).find(search, fields).sort(sort).skip(skip).limit(limit).toArray(next);
         });
       } else {
-        db.collection(name).find(search, fields).sort(sort).skip(skip).limit(limit).toArray(next);
+        var res = db.collection(name).find(search, fields).sort(sort);
+        if(skip) res = res.skip(skip);
+        if(limit) res = res.limit(limit);
+        res.toArray(next);
       }
     },
 
@@ -34,6 +37,10 @@ module.exports = function (name, model, db) {
     },
 
     update: function (id, data, res) {
+console.log('!!!!!!!!!!!!!!!!!!');
+console.log(name);
+console.log(id);
+console.log(data);
       db.collection(name).update({ _id: id }, data, res);
     },
 

@@ -29,9 +29,10 @@ function start() {
     : optDb.login ? optDb.login + ':' + optDb.password + '@'
     : '';
   var dbUrl = process.env.DB_URL || optDb.url || 'localhost';
-  dbUrl += ':' + (optDb.port || 27017);
-  dbUrl += '/' + (optDb.name || 'default');
+  if(optDb.port) dbUrl += ':' + optDb.port;
+  if(optDb.name) dbUrl += '/' + optDb.name;
   dbUrl = 'mongodb://' + dbAuth + dbUrl;
+console.log(dbUrl);
 
   app._start(HOST, PORT, dbUrl);
 }

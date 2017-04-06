@@ -187,7 +187,7 @@ exports = module.exports = function (name, model) {
 
     delete: function (req, res, next) {
       var rel = this.getRelationsData(req);
-      if(!rel) {
+      if(!rel || !rel.data) {
         var search = req.params._id? { _id: req.params._id } : {};
         model.delete(search, function (err, doc) {
           if (err) return req._error.show(err);
@@ -196,6 +196,7 @@ exports = module.exports = function (name, model) {
           res.json({ ok: 1, deleted: _.map(doc.ops, '_id'), updated: [] });
         });
       } else {
+console.log(rel);
         var m = req.models[rel.table2];
         var search = {};
         search[rel.field2] = { $in: [rel.data] };
@@ -207,12 +208,12 @@ exports = module.exports = function (name, model) {
             if (index > -1) {
               d[rel.field2].splice(index, 1);
             }
-            if(!d[rel.field2]) {
-              m.delete({_id: d._id}, function(){})
+            if(!d[rel.field2][0]) {
               deleted.push(d._id);
+              m.delete({_id: d._id}, function(err,ddd){console.log(err,ddd)})
             } else {
-              m.update(d._id, d, function(){})
               updated.push(d._id);
+              m.update(d._id, {$set:{writers:d[rel.field2]}}, function(err,ddd){console.log(err,ddd)})
             }
           });
           res.json({ ok: 1, deleted: deleted, updated: updated });

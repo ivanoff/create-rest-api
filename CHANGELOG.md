@@ -1,5 +1,14 @@
 # create-rest-api changelog
 
+## [3.0.1](https://github.com/ivanoff/create-rest-api/tree/2.2.1) (2017-06-24)
+[Full Changelog](https://github.com/ivanoff/create-rest-api/compare/2.2.1...3.0.1)
+
+**What Was Done:**
+
+- add 'validation' options (validation is false by default)
+- simplify objects registration
+
+
 ## [2.2.1](https://github.com/ivanoff/create-rest-api/tree/2.2.1) (2017-04-05)
 [Full Changelog](https://github.com/ivanoff/create-rest-api/compare/2.1.1...2.2.1)
 

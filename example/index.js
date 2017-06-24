@@ -2,8 +2,9 @@
 
 var config = require('./lib/config');
 
-var Api = require('create-rest-api');
-var api = new Api(config);
+//var Api = require('create-rest-api');
+var Api = require('../');
+var api = new Api(config, {validation: true});
 
 api.registerModel('categories', {
   name: { type: 'string', required: true },

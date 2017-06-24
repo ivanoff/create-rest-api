@@ -1,38 +1,42 @@
 'use strict';
 var app = require('./lib/server');
 
-exports = module.exports = function (options) {
-  if (!options) options = {};
-  app.log.setupLog(options.log);
+exports = module.exports = function (config, options) {
+  if (!config) config = {};
+  app.log.setupLog(config.log);
+
+  app.use( function (req, res, next) {
+    req._options = options;
+    next();
+  });
 
   var info = require('./package.json');
   app.log.info('%s v.%s on %s', info.name, info.version, app.settings.env);
 
   return {
-    _options: options,
+    _config: config,
     _app: app,
     registerModel: app.registerModel,
     start: start,
   };
 };
 
-function start() {
-  var opt = this._options;
+function start(config) {
+  var cfg = this._config;
 
-  if (typeof opt.listen === 'undefined') opt.listen = {};
-  var HOST = opt.listen.host;
-  var PORT = opt.listen.port || 8877;
+  if (typeof cfg.listen === 'undefined') cfg.listen = {};
+  var HOST = cfg.listen.host;
+  var PORT = cfg.listen.port || 8877;
 
   // set up db parameters
-  var optDb = (opt.db && opt.db.mongo)? opt.db.mongo : {};
+  var cfgDb = (cfg.db && cfg.db.mongo)? cfg.db.mongo : {};
   var dbAuth = process.env.DB_AUTH ? process.env.DB_AUTH + '@'
-    : optDb.login ? optDb.login + ':' + optDb.password + '@'
+    : cfgDb.login ? cfgDb.login + ':' + cfgDb.password + '@'
     : '';
-  var dbUrl = process.env.DB_URL || optDb.url || 'localhost';
-  if(optDb.port) dbUrl += ':' + optDb.port;
-  if(optDb.name) dbUrl += '/' + optDb.name;
+  var dbUrl = process.env.DB_URL || cfgDb.url || 'localhost';
+  if(cfgDb.port) dbUrl += ':' + cfgDb.port;
+  if(cfgDb.name) dbUrl += '/' + cfgDb.name;
   dbUrl = 'mongodb://' + dbAuth + dbUrl;
-console.log(dbUrl);
 
   app._start(HOST, PORT, dbUrl);
 }

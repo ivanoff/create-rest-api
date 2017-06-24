@@ -124,7 +124,7 @@ exports = module.exports = function (name, model) {
       var _this = this;
       var doc = req.body;
       v.validate(model.object, doc, function (err) {
-        if (err) return req._error.DATA_VALIDATION_ERROR(err);
+        if (err && req._options.validation) return req._error.DATA_VALIDATION_ERROR(err);
 
         // Update current document relation data
         var rel = _this.getRelationsData(req);
@@ -156,7 +156,7 @@ exports = module.exports = function (name, model) {
       var _this = this;
       var toUpdate = req.body;
       v.validate(model.object, toUpdate, { notRequired: req._updateOnly }, function (err) {
-        if (err) return req._error.DATA_VALIDATION_ERROR(err);
+        if (err && req._options.validation) return req._error.DATA_VALIDATION_ERROR(err);
 
         var search = { _id: req.params._id };
         model.get(search, {}, {}, 0, 1, null, function (err, oldDoc) {
@@ -192,11 +192,9 @@ exports = module.exports = function (name, model) {
         model.delete(search, function (err, doc) {
           if (err) return req._error.show(err);
           if (!doc || !doc.result.n) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
-
           res.json({ ok: 1, deleted: _.map(doc.ops, '_id'), updated: [] });
         });
       } else {
-console.log(rel);
         var m = req.models[rel.table2];
         var search = {};
         search[rel.field2] = { $in: [rel.data] };

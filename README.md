@@ -45,6 +45,18 @@
 var Api = require('create-rest-api');
 var api = new Api();
 
+api.registerModel('writers');
+
+api.start();
+```
+
+## Usage Example with validation
+
+```javascript
+// index.js
+var Api = require('create-rest-api');
+var api = new Api(null, {validation: true});
+
 api.registerModel('writers', {
   name: { type: 'string', required: true },
   sex: { type: 'any', one: ['M', 'F'] }

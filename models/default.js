@@ -37,10 +37,6 @@ module.exports = function (name, model, db) {
     },
 
     update: function (id, data, res) {
-console.log('!!!!!!!!!!!!!!!!!!');
-console.log(name);
-console.log(id);
-console.log(data);
       db.collection(name).update({ _id: id }, data, res);
     },
 

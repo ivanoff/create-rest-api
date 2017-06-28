@@ -6,7 +6,7 @@ exports = module.exports = function (config, options) {
   app.log.setupLog(config.log);
 
   app.use( function (req, res, next) {
-    req._options = options || {};
+    req._setOptions(options);
     next();
   });
 

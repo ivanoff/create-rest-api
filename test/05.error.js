@@ -25,6 +25,11 @@ dbUrl = 'mongodb://' + dbAuth + dbUrl;
 var app = require('../lib/server');
 app._db = require('../lib/db/mongo');
 
+app.use( function (req, res, next) {
+  req._setOptions( {validation: true} );
+  next();
+});
+
 app.registerModel('stars', {
   name: { type: 'string', required: true },
 });
@@ -146,7 +151,7 @@ describe('Errors', function () {
           done();
         });
     });
-
+/*
     it('wrong key', function (done) {
       chai.request(app)
         .post('/categories')
@@ -156,8 +161,8 @@ describe('Errors', function () {
           done();
         });
     });
-
-    it('wrong key', function (done) {
+*/
+    it('wrong key again', function (done) {
       chai.request(app)
         .put('/categories')
         .send({ nme: 'test' })

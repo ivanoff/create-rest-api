@@ -1,31 +1,16 @@
 'use strict';
 
-var config = require('./lib/config');
+const Api = require('../');
+const api = new Api();
 
-//var Api = require('create-rest-api');
-var Api = require('../');
-var api = new Api(config, {validation: true});
+api.model('comments');
 
-api.registerModel('categories', {
-  name: { type: 'string', required: true },
-});
+api.verify();
 
-api.registerModel('directors', {
-  name: { type: 'string', required: true },
-  birthday: { type: 'date' },
-});
+api.model('stars');
 
-api.registerModel('stars', {
-  name: { type: 'string', required: true },
-  birthday: { type: 'date' },
-});
-
-api.registerModel('movies', {
-  name: { type: 'string', required: true },
-  year: { type: 'integer', required: true },
-  director: { type: 'uuid', link: 'directors' },
-  stars: { type: 'array', link: 'stars' },
-  categories: { type: 'array', link: 'categories' },
+api.model('movies', {
+  stars: { link: 'stars' },
 });
 
 api.start();

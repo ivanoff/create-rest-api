@@ -17,6 +17,8 @@ exports = module.exports = function (config, options) {
     _config: config,
     _app: app,
     registerModel: app.registerModel,
+    model: app.model,
+    verify: app.verify,
     start: start,
   };
 };
@@ -34,8 +36,8 @@ function start(config) {
     : cfgDb.login ? cfgDb.login + ':' + cfgDb.password + '@'
     : '';
   var dbUrl = process.env.DB_URL || cfgDb.url || 'localhost';
-  if(cfgDb.port) dbUrl += ':' + cfgDb.port;
-  if(cfgDb.name) dbUrl += '/' + cfgDb.name;
+  if(cfgDb.port && !dbUrl.match(/:/)) dbUrl += ':' + cfgDb.port;
+  if(cfgDb.name && !dbUrl.match(/\//)) dbUrl += '/' + cfgDb.name;
   dbUrl = 'mongodb://' + dbAuth + dbUrl;
 
   app._start(HOST, PORT, dbUrl);

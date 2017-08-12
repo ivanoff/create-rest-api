@@ -89,6 +89,9 @@ exports = module.exports = function (name, model) {
         }
       }
 
+      if(req.params.login) search.login = req.params.login;
+      if(req.params.group) search.group = req.params.group;
+
       var rel = _this.getRelationsData(req);
 
       req._log.debug(req._id, name, 'model.get(',
@@ -136,6 +139,10 @@ exports = module.exports = function (name, model) {
         function(flow) {
           var rel = _this.getRelationsData(req);
           doc = _this.updateRelationsDoc(rel, doc, 'type2', 'field2');
+
+          if(req.params.login) doc.login = req.params.login;
+          if(req.params.group) doc.group = req.params.group;
+
           model.add(doc, flow);
         },
       ], function(err, result, rel) {
@@ -167,6 +174,9 @@ exports = module.exports = function (name, model) {
         if (err && req._options.validation) return req._error.DATA_VALIDATION_ERROR(err);
 
         var search = { _id: req.params._id };
+        if(req.params.login) search.login = req.params.login;
+        if(req.params.group) search.group = req.params.group;
+
         model.get(search, {}, {}, 0, 1, null, function (err, oldDoc) {
           if (Array.isArray(oldDoc)) oldDoc = oldDoc[0];
 
@@ -177,6 +187,9 @@ exports = module.exports = function (name, model) {
           toUpdate = _.merge(oldDoc, toUpdate);
           model.update(req.params._id, toUpdate, function (err, doc) {
             if (err) return req._error.show(err);
+
+            if(req.params.login) doc.login = req.params.login;
+            if(req.params.group) doc.group = req.params.group;
 
             doc._links = _this.makeLinks(name, doc._id, req._relations);
 
@@ -197,6 +210,10 @@ exports = module.exports = function (name, model) {
       var rel = this.getRelationsData(req);
       if(!rel || !rel.data) {
         var search = req.params._id? { _id: req.params._id } : {};
+
+        if(req.params.login) search.login = req.params.login;
+        if(req.params.group) search.group = req.params.group;
+
         model.delete(search, function (err, doc) {
           if (err) return req._error.show(err);
           if (!doc || !doc.result.n) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
@@ -206,6 +223,10 @@ exports = module.exports = function (name, model) {
         var m = req.models[rel.table2];
         var search = {};
         search[rel.field2] = { $in: [rel.data] };
+
+        if(req.params.login) search.login = req.params.login;
+        if(req.params.group) search.group = req.params.group;
+
         m.get(search, {}, {}, null, null, null, function (err, doc) {
           var deleted = [];
           var updated = [];

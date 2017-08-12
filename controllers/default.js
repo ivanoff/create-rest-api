@@ -91,6 +91,10 @@ exports = module.exports = function (name, model) {
 
       if(req.params.login) search.login = req.params.login;
       if(req.params.group) search.group = req.params.group;
+      if(!req.params.group && !req.params.login){
+        search.login = undefined;
+        search.group = undefined;
+      }
 
       var rel = _this.getRelationsData(req);
 

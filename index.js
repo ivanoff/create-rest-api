@@ -7,8 +7,12 @@ exports = module.exports = function (config, options) {
 
   app.use( function (req, res, next) {
     req._setOptions(options);
+    req._setConfig(config);
+    req._db = app._db;
     next();
   });
+
+  require('./routes/login')(app);
 
   var info = require('./package.json');
   app.log.info('%s v.%s on %s', info.name, info.version, app.settings.env);
@@ -30,9 +34,11 @@ function start(config) {
   var dbAuth = process.env.DB_AUTH ? process.env.DB_AUTH + '@'
     : cfgDb.login ? cfgDb.login + ':' + cfgDb.password + '@'
     : '';
+  var dbPort = cfgDb.port || 27017;
+  var dbName = cfgDb.name || 'test';
   var dbUrl = process.env.DB_URL || cfgDb.url || 'localhost';
-  if(cfgDb.port && !dbUrl.match(/:/)) dbUrl += ':' + cfgDb.port;
-  if(cfgDb.name && !dbUrl.match(/\//)) dbUrl += '/' + cfgDb.name;
+  if(!dbUrl.match(/:/)) dbUrl += ':' + dbPort;
+  if(!dbUrl.match(/\/\/.+\//)) dbUrl += '/' + dbName;
   dbUrl = 'mongodb://' + dbAuth + dbUrl;
 
   app._start(HOST, PORT, dbUrl);

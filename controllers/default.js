@@ -1,6 +1,7 @@
 'use strict';
 var v = require('2valid');
 var _ = require('lodash');
+var async = require('async');
 
 exports = module.exports = function (name, model) {
 
@@ -123,33 +124,40 @@ exports = module.exports = function (name, model) {
     add: function (req, res, next) {
       var _this = this;
       var doc = req.body;
-      v.validate(model.object, doc, function (err) {
-        if (err && req._options.validation) return req._error.DATA_VALIDATION_ERROR(err);
 
-        // Update current document relation data
-        var rel = _this.getRelationsData(req);
-        doc = _this.updateRelationsDoc(rel, doc, 'type2', 'field2');
-
-        model.add(doc, function (err, result) {
-          if (err) return req._error.show(err);
-
-          // Update related document current data
-          if (rel && rel.type1) {
-            var id = rel.data;
-            var m = req.models[rel.table1];
-            m.get({_id: id}, {}, {}, 0, 1, null, function(err,data){
-              rel.data = doc._id;
-              data[0] = _this.updateRelationsDoc(rel, data[0], 'type1', 'field1');
-              m.update(id, {$set: data[0]}, function(){});
-            });
+      async.waterfall([
+        function(flow) {
+          if (req._options.validation) {
+            v.validate(model.object, doc, flow);
+          } else {
+            flow();
           }
+        },
+        function(flow) {
+          var rel = _this.getRelationsData(req);
+          doc = _this.updateRelationsDoc(rel, doc, 'type2', 'field2');
+          model.add(doc, flow);
+        },
+      ], function(err, result, rel) {
+        if (err) return req._error.DATA_VALIDATION_ERROR(err);
+        // Update related document current data
+        var rel = _this.getRelationsData(req);
+        if (rel && rel.type1) {
+          var id = rel.data;
+          var m = req.models[rel.table1];
+          m.get({_id: id}, {}, {}, 0, 1, null, function(err,data){
+            rel.data = doc._id;
+            data[0] = _this.updateRelationsDoc(rel, data[0], 'type1', 'field1');
+            m.update(id, {$set: data[0]}, function(){});
+          });
+        }
 
-          doc._links = _this.makeLinks(name, doc._id, req._relations);
+        doc._links = _this.makeLinks(name, doc._id, req._relations);
 
-          res.location('/' + name + '/' + doc._id);
-          res.status(201).json(doc);
-        });
+        res.location('/' + name + '/' + doc._id);
+        res.status(201).json(doc);
       });
+
     },
 
     replace: function (req, res, next) {

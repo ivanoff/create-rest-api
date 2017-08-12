@@ -50,6 +50,47 @@ api.model('writers');
 api.start();
 ```
 
+## Token Usage Example
+
+```mongo
+use test
+db.users.insert({ login: 'admin', password: '21232f297a57a5a743894a0e4a801fc3', group: 'admin', name: 'Administrator' });
+```
+
+```javascript
+const Api = require('create-rest-api');
+const api = new Api({
+  token: {
+    secret: '⟶Sǝcяeť✙', // token's secret, required
+    expire: 60 * 10,    // 10 minutes token expired, not required, default is 1 minute
+  },
+});
+
+api.model('comments');  // /comments are free to anyone
+
+api.needToken();        // after that etheryfing will be checked for token ( X-Access-Token in headers, use /login to get one )
+
+api.model('stars');     // for login store use /my/{login}/stars, for group store - /our/{group}/stars, others - /stars
+
+api.model('movies', {   // for login store use /my/{login}/movies, for group store - /our/{group}/movies, others - /movies
+  stars: { link: 'stars' },
+});
+
+api.start();
+```
+
+```bash
+; get new token
+curl -X POST -H "Content-Type: application/json" -d '{"login":"admin","password":"admin"}' 127.0.0.1:8877/login
+; > {"token":"{TOKEN}","login":"admin","group":"admin","name":"Administrator"}
+; renew token
+curl -X PATCH -H "X-Access-Token: {TOKEN}" 127.0.0.1:8877/login
+; add movie owner by login:admin
+curl -X POST -H "X-Access-Token: {TOKEN}" -H "Content-Type: application/json" -d '{"name":"Movie 1 admin login"}' 127.0.0.1:8877/my/admin/movies
+; get login:admin owner movies
+curl -H "X-Access-Token: {TOKEN}" 127.0.0.1:8877/my/admin/movies
+```
+
 ## Usage Example with validation
 
 ```javascript

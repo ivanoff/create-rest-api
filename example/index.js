@@ -3,18 +3,18 @@
 const Api = require('../');
 const api = new Api({
   token: {
-    secret: 'S3cЯe`|`',
+    secret: '⟶Sǝcяeť✙',
     expire: 60 * 10,
   },
 });
 
 api.model('comments');
 
-api.verify();
+api.needToken();
 
-api.model('stars');
+api.model('stars'); // /my/login/stars : /our/group/stars : /stars
 
-api.model('movies', {
+api.model('movies', { // /my/login/movies : /our/group/movies : /movies
   stars: { link: 'stars' },
 });
 

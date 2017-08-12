@@ -21,6 +21,7 @@ exports.login = function(req, res, next) {
     var data = {
       _id: doc._id,
       _refreshToken: refreshToken,
+      login: doc.login,
       group: doc.group,
       name: doc.name,
     }
@@ -31,6 +32,7 @@ exports.login = function(req, res, next) {
 
     res.json({
       token: token,
+      login: doc.login,
       group: doc.group,
       name: doc.name,
       _links:{
@@ -48,7 +50,6 @@ exports.update = function(req, res, next) {
   if(!token) return req._error.NO_TOKEN();
 
   var decoded = jwt.decode(token, secret);
-  res.json(decoded);
 
   LoginModel.search(req, {refreshToken: decoded._refreshToken}, function(err, doc){
     if(err) return req._error.show(err);
@@ -59,6 +60,7 @@ exports.update = function(req, res, next) {
     var data = {
       _id: doc._id,
       _refreshToken: refreshToken,
+      login: doc.login,
       group: doc.group,
       name: doc.name,
     }
@@ -69,6 +71,7 @@ exports.update = function(req, res, next) {
 
     res.json({
       token: token,
+      login: doc.login,
       group: doc.group,
       name: doc.name,
       _links:{

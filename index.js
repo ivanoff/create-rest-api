@@ -13,14 +13,9 @@ exports = module.exports = function (config, options) {
   var info = require('./package.json');
   app.log.info('%s v.%s on %s', info.name, info.version, app.settings.env);
 
-  return {
-    _config: config,
-    _app: app,
-    registerModel: app.registerModel,
-    model: app.model,
-    verify: app.verify,
-    start: start,
-  };
+  app._config = config;
+  app.start = start;
+  return app;
 };
 
 function start(config) {

@@ -9,7 +9,7 @@
 
 # Create REST API
 
-### v.3.1.2
+### v.4.0.1
 
 ###  Create your REST API from scarch
 
@@ -45,7 +45,7 @@
 var Api = require('create-rest-api');
 var api = new Api();
 
-api.registerModel('writers');
+api.model('writers');
 
 api.start();
 ```
@@ -57,7 +57,7 @@ api.start();
 var Api = require('create-rest-api');
 var api = new Api(null, {validation: true});
 
-api.registerModel('writers', {
+api.model('writers', {
   name: { type: 'string', required: true },
   sex: { type: 'any', one: ['M', 'F'] }
 });
@@ -178,12 +178,12 @@ _limit | _per_page | Limit per page
 var Api = require('create-rest-api');
 var api = new Api();
 
-api.registerModel('writers', {
+api.model('writers', {
   name: { type: 'string', required: true },
   sex: { type: 'any', one: ['M', 'F'] }
 });
 
-api.registerModel('books', {
+api.model('books', {
   name: { type: 'string', required: true },
   year: { type: 'integer' },
   writers: { type: 'array', link: 'writers' },

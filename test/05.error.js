@@ -30,21 +30,21 @@ app.use( function (req, res, next) {
   next();
 });
 
-app.registerModel('stars', {
+app.model('stars', {
   name: { type: 'string', required: true },
 });
 
-app.registerModel('categories', {
+app.model('categories', {
   name: { type: 'string', required: true },
 });
 
-app.registerModel('movies', {
+app.model('movies', {
   name: { type: 'string', required: true },
   year: { type: 'integer' },
   categories: { type: 'array', link: 'categories' },
 });
 
-app.registerModel('books', {
+app.model('books', {
   name: { type: 'string', required: true },
   authors: { type: 'array', link: 'authors' },
 });

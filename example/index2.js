@@ -23,17 +23,17 @@ api.model('categories', {
   name: { type: 'string', required: true },
 });
 
-api.registerModel('directors', {
+api.model('directors', {
   name: { type: 'string', required: true },
   birthday: { type: 'date' },
 });
 
-api.registerModel('stars', {
+api.model('stars', {
   name: { type: 'string', required: true },
   birthday: { type: 'date' },
 });
 
-api.registerModel('movies', {
+api.model('movies', {
   name: { type: 'string', required: true },
   year: { type: 'integer', required: true },
   director: { type: 'uuid', link: 'directors' },

@@ -23,11 +23,11 @@ dbUrl = 'mongodb://' + dbAuth + dbUrl;
 var app = require('../lib/server');
 app._db = require('../lib/db/mongo');
 
-app.registerModel('categories', {
+app.model('categories', {
   name: { type: 'string', required: true },
 });
 
-app.registerModel('movies', {
+app.model('movies', {
   name: { type: 'string', required: true },
   year: { type: 'integer' },
   categories: { type: 'array', link: 'categories' },

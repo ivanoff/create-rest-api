@@ -7,7 +7,7 @@ module.exports = {
   modelName : 'users',
 
   search : function(req, data, res) {
-    var search = { login: data.login, password: data.password };
+    var search = (data.login)? { login: data.login, password: data.password } : { _refreshToken: data.refreshToken };
     req._db.collection(this.modelName).findOne(search, res);
   },
 

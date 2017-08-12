@@ -25,25 +25,7 @@ exports.login = function(req, res, next) {
       name: doc.name,
     }
 
-    var token = jwt.sign(data, secret, {expiresIn: req._config.token.expire || 60});;
-
-/*
-    var token = token.getToken(req, doc);
-  var refreshToken = uuid.v4();
-  if(!req.currentUser) req.currentUser = {_id: doc._id};
-
-  LoginModel.updateOne( req, {_id: doc._id}, { _refreshToken: refreshToken } );
-
-  var data = {
-    _id: doc._id,
-    _refreshToken: refreshToken,
-    type: doc.type,
-    companyId: doc.companyId,
-    name: doc.name,
-  }
-
-  return jwt.sign(data, config.token.secret, {expiresIn: config.token.expire});
-*/
+    var token = jwt.sign(data, secret, {expiresIn: req._config.token.expire || 60});
 
     LoginModel.updateOne( req, {_id: doc._id}, { _refreshToken: refreshToken } );
 
@@ -56,5 +38,50 @@ exports.login = function(req, res, next) {
       }
     })
   });
+};
 
+exports.update = function(req, res, next) {
+  var secret = req._config && req._config.token? req._config.token.secret : undefined;
+  if(!secret) return req._error.NO_TOKEN_SECRET();
+
+  var token = req.headers['x-access-token'] || req.body.token || req.params.token;
+  if(!token) return req._error.NO_TOKEN();
+
+  var decoded = jwt.decode(token, secret);
+  res.json(decoded);
+
+  LoginModel.search(req, {refreshToken: decoded._refreshToken}, function(err, doc){
+    if(err) return req._error.show(err);
+    if(!doc) return req._error.USER_NOT_FOUND();
+
+    var refreshToken = uuid.v4();
+
+    var data = {
+      _id: doc._id,
+      _refreshToken: refreshToken,
+      group: doc.group,
+      name: doc.name,
+    }
+
+    var token = jwt.sign(data, secret, {expiresIn: req._config.token.expire || 60});
+
+    LoginModel.updateOne( req, { _id: doc._id }, { _refreshToken: refreshToken } );
+
+    res.json({
+      token: token,
+      group: doc.group,
+      name: doc.name,
+      _links:{
+        self:{href: '/token'},
+      }
+    })
+  });
+};
+
+exports.info = function(req, res, next) {
+  var token = req.headers['x-access-token'] || req.body.token || req.params.token;
+  if(!token) return req._error.NO_TOKEN();
+
+  var decoded = jwt.decode(token, req._config.token.secret);
+  res.json(decoded);
 };

@@ -39,7 +39,7 @@ appT.needToken();
 appT.model('ingredients');
 
 appT.model('recipe', {
-  stars: { link: 'ingredients' },
+  ingredients: { link: 'ingredients' },
 });
 
 describe('Token', function () {
@@ -127,6 +127,259 @@ describe('Token', function () {
           expect(err).to.be.null;
           expect(res.body).to.have.property('token');
           token = res.body.token;
+          done();
+        });
+    });
+  });
+
+  describe('get token', function () {
+    it('/login', function (done) {
+      chai.request(appT)
+        .get('/login')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.have.property('_refreshToken');
+          done();
+        });
+    });
+  });
+
+  describe('get token', function () {
+    it('/login', function (done) {
+      chai.request(appT)
+        .patch('/login')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.have.property('token');
+          token = res.body.token;
+          done();
+        });
+    });
+  });
+
+  describe('/ingredients', function () {
+    var id;
+    it('add one', function (done) {
+      chai.request(appT)
+        .post('/ingredients')
+        .set('X-Access-Token', token)
+        .send({ name: 'Tomato' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/ingredients')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('get one', function (done) {
+      chai.request(appT)
+        .get('/ingredients/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('name').eql('Tomato');
+          done();
+        });
+    });
+  });
+
+  describe('/my/admin/ingredients', function () {
+    var id;
+    it('add one', function (done) {
+      chai.request(appT)
+        .post('/my/admin/ingredients')
+        .set('X-Access-Token', token)
+        .send({ name: 'Tomato' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/my/admin/ingredients')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('get one', function (done) {
+      chai.request(appT)
+        .get('/my/admin/ingredients/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('name').eql('Tomato');
+          done();
+        });
+    });
+  });
+
+  describe('/our/admin/ingredients', function () {
+    var id;
+    it('add one', function (done) {
+      chai.request(appT)
+        .post('/our/admin/ingredients')
+        .set('X-Access-Token', token)
+        .send({ name: 'Tomato' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/our/admin/ingredients')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('get one', function (done) {
+      chai.request(appT)
+        .get('/our/admin/ingredients/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('name').eql('Tomato');
+          done();
+        });
+    });
+  });
+
+  describe('/our/admin/recipe', function () {
+    var id;
+    it('add one', function (done) {
+      chai.request(appT)
+        .post('/our/admin/recipe')
+        .set('X-Access-Token', token)
+        .send({ name: 'Mashed tomato', ingredients:[id] })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/our/admin/recipe')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('get one', function (done) {
+      chai.request(appT)
+        .get('/our/admin/recipe/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('name').eql('Mashed tomato');
+          done();
+        });
+    });
+
+  });
+/*
+// !!!!!!!!!! getRelationsData
+  describe('delete from /our/admin/ingredients', function () {
+    var id;
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/our/admin/ingredients')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('delete one', function (done) {
+      chai.request(appT)
+        .delete('/our/admin/ingredients/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('ok').eql(1);
+          done();
+        });
+    });
+  });
+*/
+
+  describe('delete from /ingredients', function () {
+    var id;
+
+    it('add one', function (done) {
+      chai.request(appT)
+        .post('/ingredients')
+        .set('X-Access-Token', token)
+        .send({ name: 'Tomato' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/ingredients')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('add one', function (done) {
+      chai.request(appT)
+        .post('/recipe')
+        .set('X-Access-Token', token)
+        .send({ name: 'Mashed tomato', ingredients:[id] })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('delete one', function (done) {
+      chai.request(appT)
+        .delete('/ingredients/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('ok').eql(1);
           done();
         });
     });

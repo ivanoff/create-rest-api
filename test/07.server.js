@@ -23,7 +23,8 @@ dbUrl = 'mongodb://' + dbAuth + dbUrl;
 var app = require('../lib/server');
 app._db = require('../lib/db/mongo');
 
-app.model('categories', {
+// depricated !!!
+app.registerModel('categories', {
   name: { type: 'string', required: true },
 });
 

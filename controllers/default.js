@@ -34,6 +34,7 @@ exports = module.exports = function (name, model) {
     },
 
     getRelationsData: function (req) {
+//console.log(req.route.path);
       var rel = req._relations[req.route.path.replace(/^\/+/, '')];
       if (rel && req.params[rel.name]) rel.data = req.params[rel.name];
       return rel;

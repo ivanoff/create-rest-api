@@ -105,9 +105,11 @@ exports = module.exports = function (name, model) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name, search);
 
-        docs.forEach(function(doc) {
-          doc._links = _this.makeLinks(name, doc._id, req._relations);
-        });
+        if(!fields || fields._links) {
+          docs.forEach(function(doc) {
+            doc._links = _this.makeLinks(name, doc._id, req._relations);
+          })
+        }
 
         res.json(docs);
       });

@@ -11,8 +11,12 @@ module.exports = {
     req._db.collection(this.modelName).findOne(search, res);
   },
 
-  updateOne : function(req, data, res) {
-    req._db.collection(this.modelName).updateOne(data, {$set:res});
+//  updateOne : function(req, data, res) {
+//    req._db.collection(this.modelName).updateOne(data, {$set:res});
+//  },
+
+  update : function(req, data, res) {
+    req._db.collection(this.modelName).update(data, {$set:res});
   },
 
 }

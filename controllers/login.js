@@ -28,7 +28,7 @@ exports.login = function(req, res, next) {
 
     var token = jwt.sign(data, secret, {expiresIn: req._config.token.expire || 60});
 
-    LoginModel.updateOne( req, {_id: doc._id}, { _refreshToken: refreshToken } );
+    LoginModel.update( req, {_id: doc._id}, { _refreshToken: refreshToken } );
 
     res.json({
       token: token,
@@ -67,7 +67,7 @@ exports.update = function(req, res, next) {
 
     var token = jwt.sign(data, secret, {expiresIn: req._config.token.expire || 60});
 
-    LoginModel.updateOne( req, { _id: doc._id }, { _refreshToken: refreshToken } );
+    LoginModel.update( req, { _id: doc._id }, { _refreshToken: refreshToken } );
 
     res.json({
       token: token,

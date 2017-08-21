@@ -1,5 +1,6 @@
 'use strict';
-var app = require('./lib/server');
+var App = require('./lib/server');
+var app = new App();
 
 exports = module.exports = function (config, options) {
   if (!config) config = {};

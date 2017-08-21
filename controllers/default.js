@@ -34,7 +34,6 @@ exports = module.exports = function (name, model) {
     },
 
     getRelationsData: function (req) {
-//console.log(req.route.path);
       var rel = req._relations[req.route.path.replace(/^\/+/, '')];
       if (rel && req.params[rel.name]) rel.data = req.params[rel.name];
       return rel;
@@ -106,7 +105,7 @@ exports = module.exports = function (name, model) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name, search);
 
-        if(!fields || fields._links) {
+        if(!Object.keys(fields).length || fields._links) {
           docs.forEach(function(doc) {
             doc._links = _this.makeLinks(name, doc._id, req._relations);
           })
@@ -215,6 +214,8 @@ exports = module.exports = function (name, model) {
 
     delete: function (req, res, next) {
       var rel = this.getRelationsData(req);
+console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+console.log(rel);
       if(!rel || !rel.data) {
         var search = req.params._id? { _id: req.params._id } : {};
 

@@ -20,7 +20,8 @@ if (optDb.port) dbUrl += ':' + optDb.port;
 if (optDb.name) dbUrl += '/' + optDb.name;
 dbUrl = 'mongodb://' + dbAuth + dbUrl;
 
-var app = require('../lib/server');
+var App = require('../lib/server');
+var app = new App();
 app._db = require('../lib/db/mongo');
 
 var DefaultModel = require('../models/default');

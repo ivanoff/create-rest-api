@@ -44,7 +44,8 @@ describe('Mongo', function () {
   describe('Error on start', function () {
     it('Connect', function (done) {
       process.env.NODE_ENV = 'test';
-      var app = require('../lib/server');
+      var App = require('../lib/server');
+      var app = new App();
       app._db = require('../lib/db/mongo');
       app._db.connect = function(url, next) {
         next('connection error');

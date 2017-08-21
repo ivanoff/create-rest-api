@@ -1,5 +1,4 @@
 'use strict';
-
 process.env.NODE_ENV = 'test';
 
 var chai = require('chai');
@@ -20,7 +19,9 @@ if (optDb.port) dbUrl += ':' + optDb.port;
 if (optDb.name) dbUrl += '/' + optDb.name;
 dbUrl = 'mongodb://' + dbAuth + dbUrl;
 
-var appT = require('../lib/server');
+var App = require('../lib/server');
+var appT = new App();
+
 appT._db = require('../lib/db/mongo');
 
 appT.use( function (req, res, next) {
@@ -33,11 +34,8 @@ appT.use( function (req, res, next) {
 require('../routes/login')(appT);
 
 appT.model('messages');
-
 appT.needToken();
-
 appT.model('ingredients');
-
 appT.model('recipe', {
   ingredients: { link: 'ingredients' },
 });
@@ -118,7 +116,7 @@ describe('Token', function () {
     });
   });
 
-  describe('get token', function () {
+  describe('create token', function () {
     it('/login', function (done) {
       chai.request(appT)
         .post('/login')
@@ -145,7 +143,58 @@ describe('Token', function () {
     });
   });
 
-  describe('get token', function () {
+  describe('patch token', function () {
+    it('/login', function (done) {
+      chai.request(appT)
+        .get('/login')
+        .query({ token: token })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.have.property('_refreshToken');
+          done();
+        });
+    });
+  });
+
+  describe('patch token', function () {
+    it('/login', function (done) {
+      chai.request(appT)
+        .get('/login')
+        .send({ token: token })
+        .end(function (err, res) {
+          expect(err).to.be.null;
+          expect(res.body).to.have.property('_refreshToken');
+          done();
+        });
+    });
+  });
+
+  describe('patch token', function () {
+    it('/login', function (done) {
+      chai.request(appT)
+        .get('/login')
+        .end(function (err, res) {
+          expect(res.body).to.have.property('name').eql('NO_TOKEN');
+          expect(res).to.have.status(401);
+          done();
+        });
+    });
+  });
+
+  describe('patch token', function () {
+    it('/login', function (done) {
+      chai.request(appT)
+        .patch('/login')
+        .set('X-Access-Token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OTliMWZkODQzMWMxZjJjOTk4YzFmMmEiLCJfcmVmcmVzaFRva2VuIjoiYzFmZTQ0MDAtOGYxYi00Yjc5LWIwYWUtYjBjN2ZkYTBlMWE2IiwibG9naW4iOiJhZG1pbiIsImdyb3VwIjoiYWRtaW4iLCJpYXQiOjE1MDMzMzg0NTYsImV4cCI6MTUwMzMzODUxNn0.lJCJXNQYoNXz6ffCcMACs3EtCf72xmqPQYRW-F5f4wE')
+        .end(function (err, res) {
+          expect(res.body).to.have.property('name').eql('USER_NOT_FOUND');
+          expect(res).to.have.status(404);
+          done();
+        });
+    });
+  });
+
+  describe('patch token', function () {
     it('/login', function (done) {
       chai.request(appT)
         .patch('/login')
@@ -307,8 +356,7 @@ describe('Token', function () {
     });
 
   });
-/*
-// !!!!!!!!!! getRelationsData
+
   describe('delete from /our/admin/ingredients', function () {
     var id;
     it('get all', function (done) {
@@ -334,7 +382,6 @@ describe('Token', function () {
         });
     });
   });
-*/
 
   describe('delete from /ingredients', function () {
     var id;

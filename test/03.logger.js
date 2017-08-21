@@ -12,7 +12,8 @@ chai.use(chaiHttp);
 var fs = require('fs');
 var config = JSON.parse(fs.readFileSync(require('path').resolve(__dirname, 'config/test.json')));
 
-var app = require('../lib/server');
+var App = require('../lib/server');
+var app = new App();
 app._db = require('../lib/db/mongo');
 
 var optDb = config.db.mongo;

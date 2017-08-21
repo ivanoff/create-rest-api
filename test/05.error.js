@@ -22,7 +22,8 @@ if (optDb.port) dbUrl += ':' + optDb.port;
 if (optDb.name) dbUrl += '/' + optDb.name;
 dbUrl = 'mongodb://' + dbAuth + dbUrl;
 
-var app = require('../lib/server');
+var App = require('../lib/server');
+var app = new App();
 app._db = require('../lib/db/mongo');
 
 app.use( function (req, res, next) {
@@ -70,6 +71,9 @@ app.get('/show_error', function (req, res, next) {
 });
 
 describe('Errors', function () {
+
+  before(function() {
+  });
 
   describe('own routes', function () {
     it('DATA_VALIDATION_ERROR', function (done) {
@@ -151,8 +155,7 @@ describe('Errors', function () {
           done();
         });
     });
-/*
-    it('wrong key', function (done) {
+    it('post wrong key', function (done) {
       chai.request(app)
         .post('/categories')
         .send({ nme: 'test' })
@@ -161,13 +164,12 @@ describe('Errors', function () {
           done();
         });
     });
-*/
     it('wrong key again', function (done) {
       chai.request(app)
         .put('/categories')
         .send({ nme: 'test' })
         .end(function (err, res) {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(404);
           done();
         });
     });
@@ -185,9 +187,10 @@ describe('Errors', function () {
       chai.request(app)
         .get('/cat')
         .end(function (err, res) {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(404);
           done();
         });
     });
   });
+
 });

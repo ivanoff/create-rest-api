@@ -34,7 +34,7 @@ appT.use( function (req, res, next) {
 require('../routes/login')(appT);
 
 appT.model('messages');
-appT.needToken();
+appT.needToken({login: 'users.login', password: 'users.password'});
 appT.model('ingredients');
 appT.model('recipe', {
   ingredients: { link: 'ingredients' },
@@ -283,6 +283,7 @@ describe('Token', function () {
   });
 
   describe('/our/admin/ingredients', function () {
+    var idI;
     var id;
     it('add one', function (done) {
       chai.request(appT)
@@ -302,14 +303,14 @@ describe('Token', function () {
         .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
-          id = res.body[0]._id;
+          idI = res.body[0]._id;
           done();
         });
     });
 
     it('get one', function (done) {
       chai.request(appT)
-        .get('/our/admin/ingredients/' + id)
+        .get('/our/admin/ingredients/' + idI)
         .set('X-Access-Token', token)
         .end(function (err, res) {
           expect(res).to.have.status(200);
@@ -317,15 +318,23 @@ describe('Token', function () {
           done();
         });
     });
-  });
 
-  describe('/our/admin/recipe', function () {
-    var id;
-    it('add one', function (done) {
+    it('add our one', function (done) {
       chai.request(appT)
         .post('/our/admin/recipe')
         .set('X-Access-Token', token)
-        .send({ name: 'Mashed tomato', ingredients:[id] })
+        .send({ name: 'Mashed tomato', ingredients:[idI] })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('add our one', function (done) {
+      chai.request(appT)
+        .post('/our/admin/recipe')
+        .set('X-Access-Token', token)
+        .send({ name: 'Crisps', ingredients:[idI] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
@@ -344,6 +353,17 @@ describe('Token', function () {
         });
     });
 
+    it('patch our one', function (done) {
+      chai.request(appT)
+        .patch('/our/admin/recipe/' + id)
+        .set('X-Access-Token', token)
+        .send({ name: 'Mashed potato', ingredients:[idI] })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
     it('get one', function (done) {
       chai.request(appT)
         .get('/our/admin/recipe/' + id)
@@ -355,13 +375,106 @@ describe('Token', function () {
         });
     });
 
+    it('get one reciepe by ingridients', function (done) {
+      chai.request(appT)
+        .get('/our/admin/ingredients/' + idI + '/recipe')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body[0]).to.have.property('name').eql('Mashed tomato');
+          expect(res.body[1]).to.have.property('name').eql('Crisps');
+          done();
+        });
+    });
+
+    it('delete ingredients', function (done) {
+      chai.request(appT)
+        .delete('/our/admin/recipe/' + id + '/ingredients')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('ok').eql(1);
+          done();
+        });
+    });
+
+    it('delete recipes', function (done) {
+      chai.request(appT)
+        .delete('/our/admin/ingredients/' + idI + '/recipe')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('ok').eql(1);
+          done();
+        });
+    });
+
+    it('delete one', function (done) {
+      chai.request(appT)
+        .delete('/our/admin/ingredients/' + idI)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(404);
+          done();
+        });
+    });
+
   });
 
-  describe('delete from /our/admin/ingredients', function () {
+  describe('/my/admin/recipe', function () {
+    var id;
+    it('add our one', function (done) {
+      chai.request(appT)
+        .post('/my/admin/recipe')
+        .set('X-Access-Token', token)
+        .send({ name: 'Mashed tomato', ingredients:[id] })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('get all', function (done) {
+      chai.request(appT)
+        .get('/my/admin/recipe')
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.be.a('array');
+          id = res.body[0]._id;
+          done();
+        });
+    });
+
+    it('add our one', function (done) {
+      chai.request(appT)
+        .patch('/my/admin/recipe/' + id)
+        .set('X-Access-Token', token)
+        .send({ name: 'Mashed potato', ingredients:[id] })
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    it('get one', function (done) {
+      chai.request(appT)
+        .get('/my/admin/recipe/' + id)
+        .set('X-Access-Token', token)
+        .end(function (err, res) {
+          expect(res).to.have.status(200);
+          expect(res.body).to.have.property('name').eql('Mashed tomato');
+          done();
+        });
+    });
+
+  });
+
+  describe('delete from /my/admin/ingredients', function () {
     var id;
     it('get all', function (done) {
       chai.request(appT)
-        .get('/our/admin/ingredients')
+        .get('/my/admin/ingredients')
         .set('X-Access-Token', token)
         .end(function (err, res) {
           expect(res).to.have.status(200);
@@ -373,7 +486,7 @@ describe('Token', function () {
 
     it('delete one', function (done) {
       chai.request(appT)
-        .delete('/our/admin/ingredients/' + id)
+        .delete('/my/admin/ingredients/' + id)
         .set('X-Access-Token', token)
         .end(function (err, res) {
           expect(res).to.have.status(200);

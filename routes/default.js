@@ -4,6 +4,7 @@
 'use strict'
 
 module.exports = function (name, controller, app) {
+
   if(app.protected[name]) {
     app.use('/' + name, app.checkAccess);
     app.use('/my/:login/' + name, app.checkAccess);

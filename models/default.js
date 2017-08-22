@@ -6,13 +6,20 @@ module.exports = function (name, model, db) {
   return {
     object: model,
 
-    get: function (search, fields, sort, skip, limit, relation, next) {
-      if (relation) {
-        var s = { _id: relation.data };
-        db.collection(relation.table1).find(s).toArray(function (err, arr) {
+    get: function (params, next) {
+      var search = params.search;
+      var fields = params.fields || {};
+      var sort = params.sort || {};
+      var start = params.start || 0;
+      var limit = params.limit;
+      var rel = params.rel;
+
+      if (rel) {
+        var s = { _id: rel.data };
+        db.collection(rel.table1).find(s).toArray(function (err, arr) {
           var a = [];
           for (var i = 0; i < arr.length; i++) {
-            var d = arr[i][relation.field1];
+            var d = arr[i][rel.field1];
             if (Array.isArray(d)) {
               a = a.concat(d);
             } else {
@@ -20,12 +27,12 @@ module.exports = function (name, model, db) {
             }
           }
 
-          search[relation.field2] = { $in: a };
-          db.collection(name).find(search, fields).sort(sort).skip(skip).limit(limit).toArray(next);
+          search[rel.field2] = { $in: a };
+          db.collection(name).find(search, fields).sort(sort).skip(start).limit(limit).toArray(next);
         });
       } else {
         var res = db.collection(name).find(search, fields).sort(sort);
-        if(skip) res = res.skip(skip);
+        if(start) res = res.skip(start);
         if(limit) res = res.limit(limit);
         res.toArray(next);
       }

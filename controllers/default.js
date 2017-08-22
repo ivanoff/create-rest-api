@@ -58,8 +58,8 @@ exports = module.exports = function (name, model) {
       if (!q._limit) q._limit = q._per_page;
       if (!q._sort) q._sort = q._order;
 
-      var start = parseInt(q._start || 0);
-      var limit = parseInt(q._limit || 10);
+      var start = parseInt(q._start) || 0;
+      var limit = parseInt(q._limit) || 10;
 
       var fields = {};
       if (q._fields) {
@@ -101,7 +101,16 @@ exports = module.exports = function (name, model) {
       req._log.debug(req._id, name, 'model.get(',
         [search, fields, sort, start, limit, rel].prettyJSON().join(', '), ')');
 
-      model.get(search, fields, sort, start, limit, rel, function (err, docs) {
+      var params = {
+        search: search,
+        fields: fields,
+        sort: sort,
+        start: start,
+        limit: limit,
+        rel: rel,
+      }
+
+      model.get(params, function (err, docs) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name, search);
 
@@ -119,7 +128,7 @@ exports = module.exports = function (name, model) {
       var _this = this;
       var search = { _id: req.params._id };
       req._log.debug(req._id, name, 'model.get(', search, ', {} , {} , 0 , 1 , null )');
-      model.get(search, {}, {}, 0, 1, null, function (err, docs) {
+      model.get({search: search, limit: 1}, function (err, docs) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
 
@@ -158,7 +167,7 @@ exports = module.exports = function (name, model) {
         if (rel && rel.type1) {
           var id = rel.data;
           var m = req.models[rel.table1];
-          m.get({_id: id}, {}, {}, 0, 1, null, function(err,data){
+          m.get({search: {_id: id}, limit: 1}, function(err,data){
             rel.data = doc._id;
             data[0] = _this.updateRelationsDoc(rel, data[0], 'type1', 'field1');
             m.update(id, {$set: data[0]}, function(){});
@@ -183,7 +192,7 @@ exports = module.exports = function (name, model) {
         if(req.params.login) search.login = req.params.login;
         if(req.params.group) search.group = req.params.group;
 
-        model.get(search, {}, {}, 0, 1, null, function (err, oldDoc) {
+        model.get({search: search, limit: 1}, function (err, oldDoc) {
           if (Array.isArray(oldDoc)) oldDoc = oldDoc[0];
 
           if (err) return req._error.show(err);
@@ -214,8 +223,6 @@ exports = module.exports = function (name, model) {
 
     delete: function (req, res, next) {
       var rel = this.getRelationsData(req);
-console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-console.log(rel);
       if(!rel || !rel.data) {
         var search = req.params._id? { _id: req.params._id } : {};
 
@@ -235,7 +242,7 @@ console.log(rel);
         if(req.params.login) search.login = req.params.login;
         if(req.params.group) search.group = req.params.group;
 
-        m.get(search, {}, {}, null, null, null, function (err, doc) {
+        m.get({search: search}, function (err, doc) {
           var deleted = [];
           var updated = [];
           doc.forEach( function(d) {
@@ -245,10 +252,10 @@ console.log(rel);
             }
             if(!d[rel.field2][0]) {
               deleted.push(d._id);
-              m.delete({_id: d._id}, function(err,ddd){console.log(err,ddd)})
+              m.delete({_id: d._id}, function(err,obj){})
             } else {
               updated.push(d._id);
-              m.update(d._id, {$set:{writers:d[rel.field2]}}, function(err,ddd){console.log(err,ddd)})
+              m.update(d._id, {$set:{writers:d[rel.field2]}}, function(err,obj){})
             }
           });
           res.json({ ok: 1, deleted: deleted, updated: updated });

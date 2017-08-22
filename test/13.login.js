@@ -41,7 +41,7 @@ describe('Login', function () {
     require('../routes/login')(appL);
 
     appL.model('messages');
-    appL.needToken();
+    appL.needToken({});
     appL.model('ingredients');
   });
 
@@ -52,7 +52,7 @@ describe('Login', function () {
   describe('insert credentials in to database', function () {
 
     it('mongodb mock connection', function (done) {
-      appL._db.connect(dbUrl, (e,r) => { console.log(e);done(e,r)} );
+      appL._db.connect(dbUrl, (e,r) => {done(e,r)} );
     });
 
     it('insert credentials', function (done) {

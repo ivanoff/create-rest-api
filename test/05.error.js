@@ -27,6 +27,12 @@ var app = new App();
 app._db = require('../lib/db/mongo');
 
 app.use( function (req, res, next) {
+  req._setOptions();
+  req._setConfig();
+  next();
+});
+
+app.use( function (req, res, next) {
   req._setOptions( {validation: true} );
   next();
 });
@@ -125,6 +131,15 @@ describe('Errors', function () {
   describe('/cat', function () {
     it('mongodb mock connection', function (done) {
       app._db.connect(dbUrl, done);
+    });
+
+    it('INTERNAL_SERVER_ERROR', function (done) {
+      chai.request(app)
+        .get('/whateverNotF')
+        .end(function (err, res) {
+          expect(res).to.have.status(404);
+          done();
+        });
     });
 
     it('add new', function (done) {

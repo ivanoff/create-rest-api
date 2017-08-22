@@ -13,7 +13,7 @@ exports = module.exports = function (config, options) {
     next();
   });
 
-  require('./routes/login')(app);
+//  require('./routes/login')(app);
 
   var info = require('./package.json');
   app.log.info('%s v.%s on %s', info.name, info.version, app.settings.env);

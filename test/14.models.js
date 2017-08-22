@@ -30,7 +30,7 @@ var DefaultRoutes = require('../routes/default');
 
 function registerModel(name, model) {
   app.models[name] = new DefaultModel(name, model, app._db);
-  app.models[name].get = function ({search: search}, next) {
+  app.models[name].get = function (search, next) {
     next('error');
   };
 

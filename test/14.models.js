@@ -68,13 +68,6 @@ registerModel2('categories3', {
   name: { type: 'string' },
 });
 
-app.model('cars');
-app.models.cars.get = (params, next) => { next('manual error') }
-app.model('trains');
-app.models.trains.get = (params, next) => { unknownFunction() }
-
-app._start(null, 8878, dbUrl);
-
 describe('change models', function () {
 
   describe('Get error', function () {
@@ -187,40 +180,6 @@ describe('change models', function () {
           done();
         });
     });
-  });
-
-  describe('Using URL', function () {
-
-    it('get categories', function (done) {
-      chai.request('http://127.0.0.1:8878')
-        .get('/categories')
-        .end(function (err, res) {
-          expect(res).to.have.status(400);
-          expect(res.body).to.have.property('developerMessage').eql('Cannot GET /categories');
-          done();
-        });
-    });
-
-    it('get manual error', function (done) {
-      chai.request('http://127.0.0.1:8878')
-        .get('/cars')
-        .end(function (err, res) {
-          expect(res).to.have.status(400);
-          expect(res.body).to.have.property('error').eql('manual error');
-          done();
-        });
-    });
-
-    it('get error in function', function (done) {
-      chai.request('http://127.0.0.1:8878')
-        .get('/trains')
-        .end(function (err, res) {
-          expect(res).to.have.status(500);
-          expect(res.body).to.have.property('name').eql('INTERNAL_SERVER_ERROR');
-          done();
-        });
-    });
-
   });
 
 });

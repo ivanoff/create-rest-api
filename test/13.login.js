@@ -27,13 +27,13 @@ let App = require('../lib/server');
 
 describe('Login', function () {
 
-  before( () => {
+  before(() => {
     appL = new App();
     appL._db = require('../lib/db/mongo');
 
-    appL.use( function (req, res, next) {
-      req._setOptions( {validation: false} );
-      req._setConfig( {} );
+    appL.use(function (req, res, next) {
+      req._setOptions({ validation: false });
+      req._setConfig({});
       req._db = appL._db;
       next();
     });
@@ -45,20 +45,20 @@ describe('Login', function () {
     appL.model('ingredients');
   });
 
-  after( () => {
+  after(() => {
       appL = null;
-  });
+    });
 
   describe('insert credentials in to database', function () {
 
     it('mongodb mock connection', function (done) {
-      appL._db.connect(dbUrl, (e,r) => {done(e,r)} );
+      appL._db.connect(dbUrl, (e, r) => {done(e, r);});
     });
 
     it('insert credentials', function (done) {
       appL._db.collection('users').insertOne(
         { login: 'admin1', password: '21232f297a57a5a743894a0e4a801fc3', group: 'admin' },
-        function(err, result) {
+        function (err, result) {
           expect(err).to.be.null;
           done();
         });
@@ -91,13 +91,13 @@ describe('Login', function () {
 describe('Login', function () {
   let token;
 
-  before( () => {
+  before(() => {
     appL = new App();
     appL._db = require('../lib/db/mongo');
 
-    appL.use( function (req, res, next) {
-      req._setOptions( {validation: false} );
-      req._setConfig( {token: { secret: 'secret' }} );
+    appL.use(function (req, res, next) {
+      req._setOptions({ validation: false });
+      req._setConfig({ token: { secret: 'secret' } });
       req._db = appL._db;
       next();
     });
@@ -109,7 +109,7 @@ describe('Login', function () {
     appL.model('ingredients');
   });
 
-  after( () => {
+  after(() => {
     appL = null;
   });
 
@@ -151,6 +151,7 @@ describe('Login', function () {
           done();
         });
     });
+
     it('patch /login', function (done) {
       chai.request(appL)
         .patch('/login')

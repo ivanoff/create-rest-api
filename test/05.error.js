@@ -26,16 +26,18 @@ var App = require('../lib/server');
 var app = new App();
 app._db = require('../lib/db/mongo');
 
-app.use( function (req, res, next) {
+app.use(function (req, res, next) {
   req._setOptions();
   req._setConfig();
   next();
 });
 
-app.use( function (req, res, next) {
-  req._setOptions( {validation: true} );
+app.use(function (req, res, next) {
+  req._setOptions({ validation: true });
   next();
 });
+
+app.model();
 
 app.model('stars', {
   name: { type: 'string', required: true },
@@ -76,9 +78,12 @@ app.get('/show_error', function (req, res, next) {
   return req._error.show();
 });
 
+app.needToken();
+app.model('secured');
+
 describe('Errors', function () {
 
-  before(function() {
+  before(function () {
   });
 
   describe('own routes', function () {
@@ -87,6 +92,7 @@ describe('Errors', function () {
         .get('/validation_error')
         .end(function (err, res) {
           expect(res).to.have.status(400);
+          expect(res.body).to.have.property('name').eql('DATA_VALIDATION_ERROR');
           done();
         });
     });
@@ -96,6 +102,7 @@ describe('Errors', function () {
         .get('/not_found_error')
         .end(function (err, res) {
           expect(res).to.have.status(404);
+          expect(res.body).to.have.property('name').eql('NOT_FOUND');
           done();
         });
     });
@@ -105,6 +112,7 @@ describe('Errors', function () {
         .get('/internal_error')
         .end(function (err, res) {
           expect(res).to.have.status(500);
+          expect(res.body).to.have.property('name').eql('INTERNAL_SERVER_ERROR');
           done();
         });
     });
@@ -114,6 +122,7 @@ describe('Errors', function () {
         .get('/stack_error')
         .end(function (err, res) {
           expect(res).to.have.status(500);
+          expect(res.text).to.match(/<pre>error stack<\/pre>/);
           done();
         });
     });
@@ -123,6 +132,7 @@ describe('Errors', function () {
         .get('/show_error')
         .end(function (err, res) {
           expect(res).to.have.status(400);
+          expect(res.body).to.have.property('error').eql('UNKNOWN_ERROR');
           done();
         });
     });
@@ -138,6 +148,7 @@ describe('Errors', function () {
         .get('/whateverNotF')
         .end(function (err, res) {
           expect(res).to.have.status(404);
+          expect(res.text).to.match(/<pre>Cannot GET \/whateverNotF<\/pre>/);
           done();
         });
     });
@@ -148,6 +159,7 @@ describe('Errors', function () {
         .send({ name: 'test' })
         .end(function (err, res) {
           expect(res).to.have.status(201);
+          expect(res.body).to.have.property('name').eql('test');
           done();
         });
     });
@@ -157,6 +169,7 @@ describe('Errors', function () {
         .get('/stars')
         .end(function (err, res) {
           expect(res).to.have.status(404);
+          expect(res.body).to.have.property('name').eql('NOT_FOUND');
           done();
         });
     });
@@ -167,18 +180,40 @@ describe('Errors', function () {
         .query({ nn: 'aa', _start: 'a', _limit: -100 })
         .end(function (err, res) {
           expect(res).to.have.status(404);
+          expect(res.body).to.have.property('name').eql('NOT_FOUND');
           done();
         });
     });
+
     it('post wrong key', function (done) {
       chai.request(app)
         .post('/categories')
         .send({ nme: 'test' })
         .end(function (err, res) {
           expect(res).to.have.status(400);
+          expect(res.body).to.have.property('name').eql('DATA_VALIDATION_ERROR');
           done();
         });
     });
+
+    it('patch wrong key', function (done) {
+      chai.request(app)
+        .post('/categories')
+        .send({ name: 'test' })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          expect(res.body).to.have.property('name').eql('test');
+          chai.request(app)
+            .patch('/categories/' + res.body._id)
+            .send({ nme: 'test' })
+            .end(function (err, res) {
+              expect(res).to.have.status(400);
+              expect(res.body).to.have.property('name').eql('DATA_VALIDATION_ERROR');
+              done();
+            });
+        });
+    });
+
     it('wrong key again', function (done) {
       chai.request(app)
         .put('/categories')
@@ -194,6 +229,7 @@ describe('Errors', function () {
         .get('/categories/123')
         .end(function (err, res) {
           expect(res).to.have.status(404);
+          expect(res.body).to.have.property('name').eql('NOT_FOUND');
           done();
         });
     });

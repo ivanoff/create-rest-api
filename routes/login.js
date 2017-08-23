@@ -1,11 +1,11 @@
 /****
  Login Routing
 ****/
-"use strict"
+'use strict'
 
 var loginController = require('../controllers/login');
 
-module.exports = function(app) {
+module.exports = function (app) {
 
   app.get('/login', loginController.info);
   app.post('/login', loginController.login);

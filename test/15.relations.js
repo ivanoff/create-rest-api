@@ -24,7 +24,7 @@ var app = new App();
 
 app._db = require('../lib/db/mongo');
 
-app.use( function (req, res, next) {
+app.use(function (req, res, next) {
   req._db = app._db;
   next();
 });
@@ -41,6 +41,7 @@ describe('News/Types relation', function () {
     var typeId;
     var typeId2;
     var newsId;
+    var newsId2;
 
     it('add type', function (done) {
       chai.request(app)
@@ -79,12 +80,26 @@ describe('News/Types relation', function () {
     it('add news', function (done) {
       chai.request(app)
         .post('/news')
-        .send({ name: 'Bitcoin beats new record', type:[ typeId ] })
+        .send({ name: 'Bitcoin beats new record', type: [typeId] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property('name').eql('Bitcoin beats new record');
           expect(res.body.type).to.be.a('array');
           expect(res.body.type[0]).eql(typeId);
+          done();
+        });
+    });
+
+    it('add fake news', function (done) {
+      chai.request(app)
+        .post('/news')
+        .send({ name: 'Fake news', type: [typeId2] })
+        .end(function (err, res) {
+          expect(res).to.have.status(201);
+          expect(res.body).to.have.property('name').eql('Fake news');
+          expect(res.body.type).to.be.a('array');
+          expect(res.body.type[0]).eql(typeId2);
+          newsId2 = res.body._id;
           done();
         });
     });
@@ -113,7 +128,7 @@ describe('News/Types relation', function () {
     it('add news with two types', function (done) {
       chai.request(app)
         .post('/news')
-        .send({ name: 'Bitcoin beats new record', type:[ typeId, typeId2 ] })
+        .send({ name: 'Bitcoin beats new record', type: [typeId, typeId2] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           expect(res.body).to.have.property('name').eql('Bitcoin beats new record');

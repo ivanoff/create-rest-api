@@ -28,12 +28,17 @@ module.exports = function (name, model, db) {
           }
 
           search[rel.field2] = { $in: a };
-          db.collection(name).find(search, fields).sort(sort).skip(start).limit(limit).toArray(next);
+          db.collection(name)
+            .find(search, fields)
+            .sort(sort)
+            .skip(start)
+            .limit(limit)
+            .toArray(next);
         });
       } else {
         var res = db.collection(name).find(search, fields).sort(sort);
-        if(start) res = res.skip(start);
-        if(limit) res = res.limit(limit);
+        if (start) res = res.skip(start);
+        if (limit) res = res.limit(limit);
         res.toArray(next);
       }
     },

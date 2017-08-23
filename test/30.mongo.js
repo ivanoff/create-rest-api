@@ -47,9 +47,10 @@ describe('Mongo', function () {
       var App = require('../lib/server');
       var app = new App();
       app._db = require('../lib/db/mongo');
-      app._db.connect = function(url, next) {
+      app._db.connect = function (url, next) {
         next('connection error');
       };
+
       app._start(null, 8879, dbUrl);
       done();
     });

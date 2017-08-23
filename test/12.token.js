@@ -24,9 +24,9 @@ var appT = new App();
 
 appT._db = require('../lib/db/mongo');
 
-appT.use( function (req, res, next) {
-  req._setOptions( {validation: false} );
-  req._setConfig( {token: { secret: 'secret' }} );
+appT.use(function (req, res, next) {
+  req._setOptions({ validation: false });
+  req._setConfig({ token: { secret: 'secret' } });
   req._db = appT._db;
   next();
 });
@@ -34,7 +34,7 @@ appT.use( function (req, res, next) {
 require('../routes/login')(appT);
 
 appT.model('messages');
-appT.needToken({login: 'users.login', password: 'users.password'});
+appT.needToken({ login: 'users.login', password: 'users.password' });
 appT.model('ingredients');
 appT.model('recipe', {
   ingredients: { link: 'ingredients' },
@@ -109,7 +109,7 @@ describe('Token', function () {
     it('insert credentials', function (done) {
       appT._db.collection('users').insertOne(
         { login: 'admin', password: '21232f297a57a5a743894a0e4a801fc3', group: 'admin' },
-        function(err, result) {
+        function (err, result) {
           expect(err).to.be.null;
           done();
         });
@@ -185,7 +185,10 @@ describe('Token', function () {
     it('/login', function (done) {
       chai.request(appT)
         .patch('/login')
-        .set('X-Access-Token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OTliMWZkODQzMWMxZjJjOTk4YzFmMmEiLCJfcmVmcmVzaFRva2VuIjoiYzFmZTQ0MDAtOGYxYi00Yjc5LWIwYWUtYjBjN2ZkYTBlMWE2IiwibG9naW4iOiJhZG1pbiIsImdyb3VwIjoiYWRtaW4iLCJpYXQiOjE1MDMzMzg0NTYsImV4cCI6MTUwMzMzODUxNn0.lJCJXNQYoNXz6ffCcMACs3EtCf72xmqPQYRW-F5f4wE')
+        .set('X-Access-Token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OTliMWZkOD'
+          + 'QzMWMxZjJjOTk4YzFmMmEiLCJfcmVmcmVzaFRva2VuIjoiYzFmZTQ0MDAtOGYxYi00Yjc5LWIwYWUt'
+          + 'YjBjN2ZkYTBlMWE2IiwibG9naW4iOiJhZG1pbiIsImdyb3VwIjoiYWRtaW4iLCJpYXQiOjE1MDMzMz'
+          + 'g0NTYsImV4cCI6MTUwMzMzODUxNn0.lJCJXNQYoNXz6ffCcMACs3EtCf72xmqPQYRW-F5f4wE')
         .end(function (err, res) {
           expect(res.body).to.have.property('name').eql('USER_NOT_FOUND');
           expect(res).to.have.status(404);
@@ -323,7 +326,7 @@ describe('Token', function () {
       chai.request(appT)
         .post('/our/admin/recipe')
         .set('X-Access-Token', token)
-        .send({ name: 'Mashed tomato', ingredients:[idI] })
+        .send({ name: 'Mashed tomato', ingredients: [idI] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
@@ -334,7 +337,7 @@ describe('Token', function () {
       chai.request(appT)
         .post('/our/admin/recipe')
         .set('X-Access-Token', token)
-        .send({ name: 'Crisps', ingredients:[idI] })
+        .send({ name: 'Crisps', ingredients: [idI] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
@@ -357,7 +360,7 @@ describe('Token', function () {
       chai.request(appT)
         .patch('/our/admin/recipe/' + id)
         .set('X-Access-Token', token)
-        .send({ name: 'Mashed potato', ingredients:[idI] })
+        .send({ name: 'Mashed potato', ingredients: [idI] })
         .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
@@ -427,7 +430,7 @@ describe('Token', function () {
       chai.request(appT)
         .post('/my/admin/recipe')
         .set('X-Access-Token', token)
-        .send({ name: 'Mashed tomato', ingredients:[id] })
+        .send({ name: 'Mashed tomato', ingredients: [id] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           done();
@@ -450,7 +453,7 @@ describe('Token', function () {
       chai.request(appT)
         .patch('/my/admin/recipe/' + id)
         .set('X-Access-Token', token)
-        .send({ name: 'Mashed potato', ingredients:[id] })
+        .send({ name: 'Mashed potato', ingredients: [id] })
         .end(function (err, res) {
           expect(res).to.have.status(200);
           done();
@@ -526,7 +529,7 @@ describe('Token', function () {
       chai.request(appT)
         .post('/recipe')
         .set('X-Access-Token', token)
-        .send({ name: 'Mashed tomato', ingredients:[id] })
+        .send({ name: 'Mashed tomato', ingredients: [id] })
         .end(function (err, res) {
           expect(res).to.have.status(201);
           done();

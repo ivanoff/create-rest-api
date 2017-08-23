@@ -6,7 +6,7 @@ var async = require('async');
 exports = module.exports = function (name, model) {
 
   return {
-    makeLinks: function(name, id, relations) {
+    makeLinks: function (name, id, relations) {
       var res = {};
       res['/' + name + '/' + id] = {
         GET: 'self',
@@ -22,14 +22,15 @@ exports = module.exports = function (name, model) {
       };
 
       var relKeys = Object.keys(relations);
-      relKeys.forEach( function(key) {
-        if(relations[key].table1 === name)
-          res['/' + key.replace( ':' + relations[key].name, id)] = {
-            GET: 'get '+relations[key].table2,
-            POST: 'add '+relations[key].table2,
-            DELETE: 'delete '+relations[key].table2,
+      relKeys.forEach(function (key) {
+        if (relations[key].table1 === name)
+          res['/' + key.replace(':' + relations[key].name, id)] = {
+            GET: 'get ' + relations[key].table2,
+            POST: 'add ' + relations[key].table2,
+            DELETE: 'delete ' + relations[key].table2,
           };
       });
+
       return res;
     },
 
@@ -40,13 +41,14 @@ exports = module.exports = function (name, model) {
     },
 
     updateRelationsDoc: function (rel, doc, type, field) {
-      if(!rel || !doc || !rel[type] || !rel.data) return doc;
-      if(rel[type] === 'array') {
-        if(!doc[rel[field]]) doc[rel[field]] = [];
+      if (!rel || !doc || !rel[type] || !rel.data) return doc;
+      if (rel[type] === 'array') {
+        if (!doc[rel[field]]) doc[rel[field]] = [];
         doc[rel[field]].push(rel.data);
       } else {
         doc[rel[field]] = rel.data;
       }
+
       return doc;
     },
 
@@ -89,9 +91,9 @@ exports = module.exports = function (name, model) {
         }
       }
 
-      if(req.params.login) search.login = req.params.login;
-      if(req.params.group) search.group = req.params.group;
-      if(!req.params.group && !req.params.login){
+      if (req.params.login) search.login = req.params.login;
+      if (req.params.group) search.group = req.params.group;
+      if (!req.params.group && !req.params.login) {
         search.login = undefined;
         search.group = undefined;
       }
@@ -108,16 +110,16 @@ exports = module.exports = function (name, model) {
         start: start,
         limit: limit,
         rel: rel,
-      }
+      };
 
       model.get(params, function (err, docs) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name, search);
 
-        if(!Object.keys(fields).length || fields._links) {
-          docs.forEach(function(doc) {
+        if (!Object.keys(fields).length || fields._links) {
+          docs.forEach(function (doc) {
             doc._links = _this.makeLinks(name, doc._id, req._relations);
-          })
+          });
         }
 
         res.json(docs);
@@ -128,7 +130,7 @@ exports = module.exports = function (name, model) {
       var _this = this;
       var search = { _id: req.params._id };
       req._log.debug(req._id, name, 'model.get(', search, ', {} , {} , 0 , 1 , null )');
-      model.get({search: search, limit: 1}, function (err, docs) {
+      model.get({ search: search, limit: 1 }, function (err, docs) {
         if (err) return req._error.show(err);
         if (!docs || !docs[0]) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
 
@@ -144,33 +146,35 @@ exports = module.exports = function (name, model) {
       var doc = req.body;
 
       async.waterfall([
-        function(flow) {
+        function (flow) {
           if (req._options.validation) {
             v.validate(model.object, doc, flow);
           } else {
             flow();
           }
         },
-        function(flow) {
+
+        function (flow) {
           var rel = _this.getRelationsData(req);
           doc = _this.updateRelationsDoc(rel, doc, 'type2', 'field2');
 
-          if(req.params.login) doc.login = req.params.login;
-          if(req.params.group) doc.group = req.params.group;
+          if (req.params.login) doc.login = req.params.login;
+          if (req.params.group) doc.group = req.params.group;
 
           model.add(doc, flow);
         },
-      ], function(err, result, rel) {
+      ], function (err, result, rel) {
         if (err) return req._error.DATA_VALIDATION_ERROR(err);
+
         // Update related document current data
         var rel = _this.getRelationsData(req);
         if (rel && rel.type1) {
           var id = rel.data;
           var m = req.models[rel.table1];
-          m.get({search: {_id: id}, limit: 1}, function(err,data){
+          m.get({ search: { _id: id }, limit: 1 }, function (err, data) {
             rel.data = doc._id;
             data[0] = _this.updateRelationsDoc(rel, data[0], 'type1', 'field1');
-            m.update(id, {$set: data[0]}, function(){});
+            m.update(id, { $set: data[0] }, function () {});
           });
         }
 
@@ -189,10 +193,10 @@ exports = module.exports = function (name, model) {
         if (err && req._options.validation) return req._error.DATA_VALIDATION_ERROR(err);
 
         var search = { _id: req.params._id };
-        if(req.params.login) search.login = req.params.login;
-        if(req.params.group) search.group = req.params.group;
+        if (req.params.login) search.login = req.params.login;
+        if (req.params.group) search.group = req.params.group;
 
-        model.get({search: search, limit: 1}, function (err, oldDoc) {
+        model.get({ search: search, limit: 1 }, function (err, oldDoc) {
           if (Array.isArray(oldDoc)) oldDoc = oldDoc[0];
 
           if (err) return req._error.show(err);
@@ -203,8 +207,8 @@ exports = module.exports = function (name, model) {
           model.update(req.params._id, toUpdate, function (err, doc) {
             if (err) return req._error.show(err);
 
-            if(req.params.login) doc.login = req.params.login;
-            if(req.params.group) doc.group = req.params.group;
+            if (req.params.login) doc.login = req.params.login;
+            if (req.params.group) doc.group = req.params.group;
 
             doc._links = _this.makeLinks(name, doc._id, req._relations);
 
@@ -222,13 +226,13 @@ exports = module.exports = function (name, model) {
     },
 
     delete: function (req, res, next) {
+      var search = {};
+      if (req.params.login) search.login = req.params.login;
+      if (req.params.group) search.group = req.params.group;
+
       var rel = this.getRelationsData(req);
-      if(!rel || !rel.data) {
-        var search = req.params._id? { _id: req.params._id } : {};
-
-        if(req.params.login) search.login = req.params.login;
-        if(req.params.group) search.group = req.params.group;
-
+      if (!rel || !rel.data) {
+        if (req.params._id) search._id = req.params._id;
         model.delete(search, function (err, doc) {
           if (err) return req._error.show(err);
           if (!doc || !doc.result.n) return req._error.NOT_FOUND(name.replace(/s$/, ''), search);
@@ -236,30 +240,26 @@ exports = module.exports = function (name, model) {
         });
       } else {
         var m = req.models[rel.table2];
-        var search = {};
         search[rel.field2] = { $in: [rel.data] };
 
-        if(req.params.login) search.login = req.params.login;
-        if(req.params.group) search.group = req.params.group;
-
-        m.get({search: search}, function (err, doc) {
+        m.get({ search: search }, function (err, doc) {
           var deleted = [];
           var updated = [];
-          doc.forEach( function(d) {
+          doc.forEach(function (d) {
             var index = d[rel.field2].indexOf(rel.data);
-            if (index > -1) {
-              d[rel.field2].splice(index, 1);
-            }
-            if(!d[rel.field2][0]) {
+            d[rel.field2].splice(index, 1);
+
+            if (!d[rel.field2][0]) {
               deleted.push(d._id);
-              m.delete({_id: d._id}, function(err,obj){})
+              m.delete({ _id: d._id }, function (err, obj) {});
             } else {
               updated.push(d._id);
-              m.update(d._id, {$set:{writers:d[rel.field2]}}, function(err,obj){})
+              m.update(d._id, { $set: { writers: d[rel.field2] } }, function (err, obj) {});
             }
           });
+
           res.json({ ok: 1, deleted: deleted, updated: updated });
-        })
+        });
       }
     },
 

@@ -378,16 +378,16 @@ describe('App', function () {
           done();
         });
     });
-/*
-    it('delete data', function (done) {
-      chai.request(app)
-        .delete('/categories/' + id)
-        .end(function (err, res) {
-          expect(res).to.have.status(200);
-          done();
+    /*
+        it('delete data', function (done) {
+          chai.request(app)
+            .delete('/categories/' + id)
+            .end(function (err, res) {
+              expect(res).to.have.status(200);
+              done();
+            });
         });
-    });
-*/
+    */
     it('delete data', function (done) {
       chai.request(app)
         .delete('/categories/' + id)

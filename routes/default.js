@@ -5,7 +5,7 @@
 
 module.exports = function (name, controller, app) {
 
-  if(app.protected[name]) {
+  if (app.protected[name]) {
     app.use('/' + name, app.checkAccess);
     app.use('/my/:login/' + name, app.checkAccess);
     app.use('/our/:group/' + name, app.checkAccess);
@@ -15,10 +15,8 @@ module.exports = function (name, controller, app) {
     app.delete('/my/:login/' + name, controller.delete.bind(controller));
 
     app.get('/my/:login/' + name + '/:_id', controller.getById.bind(controller));
-
     app.put('/my/:login/' + name + '/:_id', controller.replace.bind(controller));
     app.patch('/my/:login/' + name + '/:_id', controller.update.bind(controller));
-
     app.delete('/my/:login/' + name + '/:_id', controller.delete.bind(controller));
 
     app.get('/our/:group/' + name, controller.get.bind(controller));
@@ -26,10 +24,8 @@ module.exports = function (name, controller, app) {
     app.delete('/our/:group/' + name, controller.delete.bind(controller));
 
     app.get('/our/:group/' + name + '/:_id', controller.getById.bind(controller));
-
     app.put('/our/:group/' + name + '/:_id', controller.replace.bind(controller));
     app.patch('/our/:group/' + name + '/:_id', controller.update.bind(controller));
-
     app.delete('/our/:group/' + name + '/:_id', controller.delete.bind(controller));
   }
 

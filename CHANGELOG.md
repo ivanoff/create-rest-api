@@ -1,5 +1,21 @@
 # create-rest-api changelog
 
+## [4.2.1](https://github.com/ivanoff/create-rest-api/tree/4.2.1) (2017-08-25)
+[Full Changelog](https://github.com/ivanoff/create-rest-api/compare/4.1.3...4.2.1)
+
+**What Was Done:**
+
+- link to second model can be defined before initialization of second model
+
+
+## [4.1.3](https://github.com/ivanoff/create-rest-api/tree/4.1.3) (2017-08-22)
+[Full Changelog](https://github.com/ivanoff/create-rest-api/compare/3.0.1...4.1.3)
+
+**What Was Done:**
+
+- add authentication and token verification
+
+
 ## [3.0.1](https://github.com/ivanoff/create-rest-api/tree/2.2.1) (2017-06-24)
 [Full Changelog](https://github.com/ivanoff/create-rest-api/compare/2.2.1...3.0.1)
 

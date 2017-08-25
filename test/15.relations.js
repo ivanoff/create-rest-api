@@ -37,6 +37,10 @@ app.model('news', {
 
 describe('News/Types relation', function () {
 
+  before(() => {
+    app._start(null, 8893, dbUrl);
+  });
+
   describe('/types and /news', function () {
     var typeId;
     var typeId2;

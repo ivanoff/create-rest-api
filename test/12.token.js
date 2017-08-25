@@ -33,6 +33,11 @@ appT.use(function (req, res, next) {
 
 require('../routes/login')(appT);
 
+appT.model('no_link', {
+  broken: {link: 'no_link_url'}
+});
+
+
 appT.model('messages');
 appT.needToken({ login: 'users.login', password: 'users.password' });
 appT.model('ingredients');
@@ -42,6 +47,10 @@ appT.model('recipe', {
 
 describe('Token', function () {
   var token;
+
+  before(() => {
+    appT._start(null, 8892, dbUrl);
+  });
 
   describe('/messages', function () {
     var id;
@@ -288,6 +297,7 @@ describe('Token', function () {
   describe('/our/admin/ingredients', function () {
     var idI;
     var id;
+
     it('add one', function (done) {
       chai.request(appT)
         .post('/our/admin/ingredients')

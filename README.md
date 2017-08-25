@@ -9,7 +9,7 @@
 
 # Create REST API
 
-### v.4.1.3
+### v.4.2.1
 
 ###  Create your REST API from scarch
 
@@ -70,11 +70,11 @@ api.model('comments');  // /comments are free to anyone
 
 api.needToken();        // after that etheryfing will be checked for token ( X-Access-Token in headers, use /login to get one )
 
-api.model('stars');     // for login store use /my/{login}/stars, for group store - /our/{group}/stars, others - /stars
-
 api.model('movies', {   // for login store use /my/{login}/movies, for group store - /our/{group}/movies, others - /movies
   stars: { link: 'stars' },
 });
+
+api.model('stars');     // for login store use /my/{login}/stars, for group store - /our/{group}/stars, others - /stars
 
 api.start();
 ```

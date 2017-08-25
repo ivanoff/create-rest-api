@@ -29,13 +29,17 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.model('shop', {
+  cars: {link: 'cars'}
+});
+
 app.model('cars');
-app.models.cars.get = (params, next) => { next('manual error'); };
+
+app.model('bus');
 
 app.model('trains');
 app.models.trains.get = (params, next) => { unknownFunction(); };
-
-app.model('bus');
+app.models.trains.post = (params, next) => { next('manual error'); };
 
 app.needToken();
 
@@ -49,6 +53,48 @@ app.use(function (req, res, next) {
 app.model('secured_no_token');
 
 app._start(null, 8881, dbUrl);
+
+describe('Add related data', function () {
+  var carId;
+  var shopId;
+  it('add car', function (done) {
+    chai.request('http://127.0.0.1:8881')
+      .post('/cars')
+      .send({ model: 'Ford' })
+      .end(function (err, res) {
+        expect(res).to.have.status(201);
+        expect(res.body).to.have.property('model').eql('Ford');
+        expect(res.body).to.have.property('_id');
+        carId = res.body._id;
+        done();
+      });
+  });
+
+  it('add shop', function (done) {
+    chai.request('http://127.0.0.1:8881')
+      .post('/shop')
+      .send({ name: 'Ford shop', cars: [carId] })
+      .end(function (err, res) {
+        expect(res).to.have.status(201);
+        expect(res.body).to.have.property('name').eql('Ford shop');
+        expect(res.body).to.have.property('_id');
+        shopId = res.body._id;
+        done();
+      });
+  });
+
+  it('get all cars by shopId', function (done) {
+    chai.request('http://127.0.0.1:8881')
+      .get('/shop/' + shopId + '/cars')
+      .end(function (err, res) {
+        expect(res).to.have.status(200);
+        expect(res.body).to.be.a('array');
+        expect(res.body[0]).to.have.property('model').eql('Ford');
+        expect(res.body[0]).to.have.property('_id').eql(carId);
+        done();
+      });
+  });
+});
 
 describe('Using Secret', function () {
   var token;

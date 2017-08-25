@@ -41,6 +41,11 @@ app.model('movies', {
 });
 
 describe('App', function () {
+
+  before(() => {
+    app._start(null, 8891, dbUrl);
+  });
+
   describe('/categories', function () {
     var id;
     var idM;

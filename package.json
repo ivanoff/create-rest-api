@@ -1,9 +1,10 @@
 {
   "name": "create-rest-api",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "Create REST API",
   "main": "index.js",
   "scripts": {
+    "start": "node example.js",
     "test": "node_modules/.bin/mocha",
     "coverage": "istanbul cover node_modules/.bin/_mocha -- -- test/**/*.js"
   },

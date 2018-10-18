@@ -13,6 +13,7 @@
 
 ###  Create your REST API from scarch
 
+- [Dependencies](#dependencies)
 
 - [Instalation](#instalation)
 
@@ -31,6 +32,13 @@
 - [Error examples](#error-examples)
 
 - [Change Log](CHANGELOG.md)
+
+
+## Dependencies
+
+- Node.js v.4.0 or higher
+
+- MongoDB
 
 
 ## Instalation

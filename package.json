@@ -24,24 +24,26 @@
   "dependencies": {
     "2valid": "^2.5.4",
     "async": "^2.5.0",
-    "body-parser": "^1.17.2",
-    "create-raml": "^3.2.3",
-    "express": "^4.15.4",
-    "jsonwebtoken": "^7.4.2",
-    "lodash": "^4.17.4",
+    "body-parser": "^1.18.3",
+    "create-raml": "^3.2.5",
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.4.0",
+    "knex": "^0.16.3",
+    "lodash": "^4.17.11",
     "md5": "^2.2.1",
     "moment-timezone": "^0.5.13",
-    "mongo-mock": "^2.4.1",
+    "mongo-mock": "^3.3.2",
     "mongodb": "^2.2.31",
+    "sqlite3": "^4.0.4",
     "uuid": "^3.1.0",
     "winston": "^2.3.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "chai-http": "^3.0.0",
-    "coveralls": "^2.13.1",
+    "chai-http": "^4.2.1",
+    "coveralls": "^3.0.2",
     "istanbul": "^0.4.5",
-    "mocha": "^3.5.0",
+    "mocha": "^5.2.0",
     "should": "^11.2.1"
   }
 }

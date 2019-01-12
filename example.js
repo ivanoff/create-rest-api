@@ -1,7 +1,8 @@
 'use strict';
-var Api = require('./index.js');
+var Api = require('./src/api');
 var api = new Api();
 
-console.log("This is an example of api.model('writers').start()")
+console.log("This is an example of api.model('writers')")
 
-api.model('writers').start();
+api.model('writers', { name: 'string', birth: { type: 'date', notNull: true } });
+api.start();

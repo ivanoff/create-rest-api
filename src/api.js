@@ -44,6 +44,8 @@ await this.db.schema.createTable(name, function (table) {
   }
 })
 
+console.log(await this.db.table(name).columnInfo());
+
     this.app.get('/' + name, async (req, res, next) => {res.json(await this.db(name).select('*'))});
     this.app.post('/' + name, async (req, res, next) => {res.json(await this.db(name).insert(req.body).returning('*'))});
     this.app.delete('/' + name, async (req, res, next) => {res.json(await this.db(name).where(req.body).delete())});

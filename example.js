@@ -1,5 +1,5 @@
 'use strict';
-var Api = require('./src/api');
+var Api = require('./src');
 var api = new Api();
 
 console.log("This is an example of api.model('writers')")

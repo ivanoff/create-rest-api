@@ -23,9 +23,7 @@ class Api {
   }
 
   async model(name, schema) {
-    if (!name) return;
-    await this.r.model(name);
-    await this.m.create(name, schema);
+    if (name) await this.r.model(name, schema);
   }
 
 }

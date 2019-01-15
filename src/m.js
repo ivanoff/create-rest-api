@@ -3,7 +3,7 @@ const Knex = require('knex');
 const configDefault = {
   db: {
     client: 'sqlite3',
-    connection: '/tmp/123',
+    connection: ':memory:',
   },
 }
 

@@ -11,13 +11,14 @@ class R {
     this.app.use(bodyParser.urlencoded({ extended: true }));
   }
 
-  async model(name) {
+  async model(name, schema) {
     if (!name) return;
     const c = new C({name});
     this.app.get('/' + name, c.get.bind(c));
     this.app.post('/' + name, c.post.bind(c));
     this.app.delete('/' + name, c.delete.bind(c));
     console.log('%s model registered', name);
+    await c.m.create(name, schema);
   }
 
 }

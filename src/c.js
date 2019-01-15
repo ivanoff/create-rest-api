@@ -1,28 +1,23 @@
 const Knex = require('knex');
-
-const configDefault = {
-  db: {
-    client: 'sqlite3',
-    connection: ':memory:',
-  },
-}
+const M = require('./m');
 
 class C {
 
-  constructor({db} = configDefault) {
-    this.db = Knex(db)
+  constructor({name}) {
+    this.m = new M();
+    this.name = name;
   }
 
   async get(req, res, next) {
-    res.json(await this.db(name).select('*'))
+    res.json(await this.m.get(this.name))
   };
 
   async post(req, res, next) {
-    res.json(await this.db(name).insert(req.body).returning('*'))
+    res.json(await this.m.post(this.name, req.body))
   };
 
   async delete(req, res, next) {
-    res.json(await this.db(name).where(req.body).delete())
+    res.json(await this.m.delete(this.name, req.body))
   };
 
 }

@@ -9,14 +9,14 @@ class R {
     this.app = new Express();
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
-    this.c = new C();
   }
 
   async model(name) {
     if (!name) return;
-    this.app.get('/' + name, this.c.get);
-    this.app.post('/' + name, this.c.post);
-    this.app.delete('/' + name, this.c.delete);
+    const c = new C({name});
+    this.app.get('/' + name, c.get.bind(c));
+    this.app.post('/' + name, c.post.bind(c));
+    this.app.delete('/' + name, c.delete.bind(c));
     console.log('%s model registered', name);
   }
 

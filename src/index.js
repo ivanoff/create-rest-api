@@ -1,4 +1,5 @@
 const R = require('./r');
+const M = require('./m');
 
 const configDefault = {
   server: {
@@ -11,6 +12,7 @@ class Api {
 
   constructor() {
     this.r = new R();
+    this.m = new M();
   }
 
   start({server} = configDefault) {
@@ -23,20 +25,7 @@ class Api {
   async model(name, schema) {
     if (!name) return;
     await this.r.model(name);
-/*
-await this.db.schema.createTable(name, function (table) {
-  table.increments();
-  table.timestamps();
-//Adds an integer column
-  for(let key in schema) {
-    console.log(key)
-    let k = table[schema[key].type || schema[key]](key);
-    if(schema[key].notNull) k.notNullable();
-  }
-})
-*/
-console.log(await this.db.table(name).columnInfo());
-
+    await this.m.create(name, schema);
   }
 
 }

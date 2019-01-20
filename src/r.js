@@ -9,16 +9,16 @@ class R {
     this.app = new Express();
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.c = new C();
   }
 
   async model(name, schema) {
     if (!name) return;
-    const c = new C({name});
-    this.app.get('/' + name, c.get.bind(c));
-    this.app.post('/' + name, c.post.bind(c));
-    this.app.delete('/' + name, c.delete.bind(c));
+    this.app.get('/' + name, this.c.get.bind(this.c));
+    this.app.post('/' + name, this.c.post.bind(this.c));
+    this.app.delete('/' + name, this.c.delete.bind(this.c));
     console.log('%s model registered', name);
-    await c.m.create(name, schema);
+    await this.c.m.create(name, schema);
   }
 
 }

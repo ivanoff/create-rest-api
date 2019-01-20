@@ -1,5 +1,4 @@
 const R = require('./r');
-const M = require('./m');
 
 const configDefault = {
   server: {
@@ -8,22 +7,17 @@ const configDefault = {
 }
 
 
-class Api {
+class Api extends R {
 
   constructor() {
-    this.r = new R();
-    this.m = new M();
+    super();
   }
 
   start({server} = configDefault) {
     const {host, port} = server;
-    this.r.app.listen(port, host, () => {
+    this.app.listen(port, host, () => {
       console.log(`server started on ${host || '*'}:${port}`);
     });
-  }
-
-  async model(name, schema) {
-    if (name) await this.r.model(name, schema);
   }
 
 }

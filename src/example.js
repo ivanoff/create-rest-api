@@ -47,6 +47,6 @@ api.model('coments');
 api.start();
 
 // index.js
-api.models('books', 'writers', 'coments');
+api.models(['books', 'writers', 'coments']);
 api.start();
 */

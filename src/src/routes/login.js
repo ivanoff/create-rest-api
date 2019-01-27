@@ -1,14 +1,12 @@
-var LoginController = require('../controllers/login');
+const ControllersLogin = require('../controllers/login');
 
 class LoginRouter {
-
-  constructor(base) {
-    const c = new LoginController(base);
-    base.app.get('/login', c.info.bind(c));
-    base.app.post('/login', c.login.bind(c));
-    base.app.patch('/login', c.update.bind(c));
+  constructor({app, config, models}) {
+    const c = new ControllersLogin({config, models});
+    app.get('/login', c.info.bind(c));
+    app.post('/login', c.login.bind(c));
+    app.patch('/login', c.update.bind(c));
   }
-
 }
 
 module.exports = LoginRouter;

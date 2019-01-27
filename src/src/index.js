@@ -5,35 +5,22 @@ const errors = require('./errors');
 const Routes = require('./routes');
 const Controllers = require('./controllers');
 const Models = require('./models');
+const Login = require('./routes/login');
+const Base = require('./base');
 
-class Api {
+class Api extends Base {
   constructor(config) {
-    this.error = errors;
-    this.config = config;
+    super(config);
     this.db = Knex(config.db);
-
-    this.log = winston.createLogger({
-      level: process.env.LOG_LEVEL,
-      format: winston.format.json(),
-      transports: [
-        new winston.transports.File({ filename: './log/error.log', level: 'error' }),
-        new winston.transports.File({ filename: './log/combined.log' }),
-      ],
-    });
-
-    if (process.env.NODE_ENV !== 'production') {
-      this.log.add(new winston.transports.Console({
-        format: winston.format.simple(),
-      }));
-    }
 
     this.app = new Express();
     this.app.use(Express.json());
     this.app.use(Express.urlencoded({ extended: true }));
 
-    this.models = new Models(this);
-    this.routes = new Routes(this);
-    this.controllers = new Controllers(this);
+    this.models = new Models(this.db);
+    this.routes = new Routes(this.app);
+
+    new Login({config, app: this.app, models: this.models});
   }
 
   destroy() {
@@ -44,8 +31,9 @@ class Api {
   async model(name, schema, opt) {
     if (!name) return;
     this.log.debug(`${opt} to-do...`);
+    const c = new Controllers({ models: this.models, name });
     await Promise.all([
-      this.routes.create(name, schema),
+      this.routes.create(name, c),
       this.models.create(name, schema),
     ]);
     this.log.info(`${name} model registered`);
@@ -57,7 +45,7 @@ class Api {
 
   async freeAccess(name, schema) {
     this.log.debug('to-do...');
-    //    if (!Array.isArray(schema)) schema = [schema];
+    // if (!Array.isArray(schema)) schema = [schema];
     for (let i = 0; i < schema.length; i++) {
       this.models.freeAccess(name, schema[i]);
     }

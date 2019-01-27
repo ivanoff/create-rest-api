@@ -84,12 +84,12 @@ describe('Server check', () => {
       expect(res).to.have.status(200);
     });
 
-    it('get first server model returns 404', async () => {
+    it('get first server wrong model returns 404', async () => {
       let res = await r.get('/movies');
       expect(res).to.have.status(404);
     });
 
-    it('get second server model returns 404', async () => {
+    it('get second server wrong model returns 404', async () => {
       let res = await r2.get('/books');
       expect(res).to.have.status(404);
     });

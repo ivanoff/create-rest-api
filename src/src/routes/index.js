@@ -1,20 +1,14 @@
-class Routes {
-  constructor(app) {
-    this.app = app;
-  }
+module.exports = (name, app, controller) => {
+  const c = controller(name);
 
-  async create(name, c) {
-    const path = `/${name}`;
-    this.app.get(path, c.get.bind(c));
-    this.app.post(path, c.post.bind(c));
-    this.app.delete(path, c.delete.bind(c));
+  const path = `/${name}`;
+  app.get(path, c.get.bind(c));
+  app.post(path, c.post.bind(c));
+  app.delete(path, c.delete.bind(c));
 
-    const pathId = `${path}/:_id`;
-    this.app.get(pathId, c.get.bind(c));
-    this.app.put(pathId, c.replace.bind(c));
-    this.app.patch(pathId, c.update.bind(c));
-    this.app.delete(pathId, c.delete.bind(c));
-  }
-}
-
-module.exports = Routes;
+  const pathId = `${path}/:id`;
+  app.get(pathId, c.get.bind(c));
+  app.patch(pathId, c.update.bind(c));
+  app.put(pathId, c.replace.bind(c));
+  app.delete(pathId, c.delete.bind(c));
+};

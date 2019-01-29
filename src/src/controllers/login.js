@@ -2,7 +2,7 @@ const uuid = require('uuid');
 const jwt = require('jsonwebtoken');
 
 class LoginController {
-  constructor({config, models}) {
+  constructor({ config, models }) {
     this.models = models;
     this.secret = config.token ? config.token.secret : undefined;
     if (!this.secret) throw (new Error('NO_TOKEN_SECRET'));

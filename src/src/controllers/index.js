@@ -1,40 +1,41 @@
-const Base = require('../base');
-
-class Controllers extends Base {
-  constructor({models,name}) {
-    super();
-    this.models = models;
-    this.name = name;
-  }
-
-  async get(req, res, next) {
+module.exports = models => name => ({
+  get: async (req, res, next) => {
     const where = [];
-    if (req.params._id) where.push([{ id: req.params._id }]);
+    const { id } = req.params;
+    if (id) where.push([{ id }]);
 
     const search = Object.keys(req.query).filter(key => !key.match(/^_/));
-    // console.log(search);
-    // console.log(req.query);
+
     for (const key of search) {
       where.push([key, 'like', `%${req.query[key]}%`]);
     }
-    res.json(await this.models.get(this.name, where));
-  }
+    const data = await models.get(name, where);
+    if(id) {
+      if(!data[0]) res.status(404);
+      res.json(data[0]);
+    } else {
+      res.json(data);
+    }
+  },
 
-  async post(req, res, next) {
-    res.json(await this.models.post(this.name, req.body));
-  }
+  post: async (req, res, next) => {
+    const doc = await models.post(name, req.body);
+    res.location(`/${name}/${doc.id}`);
+    res.status(201).json(doc);
+  },
 
-  async replace(req, res, next) {
-    res.json(await this.models.post(this.name, req.body));
-  }
+  replace: async (req, res, next) => {
+    const { id } = req.params;
+    res.json(await models.replace(name, id, req.body));
+  },
 
-  async update(req, res, next) {
-    res.json(await this.models.post(this.name, req.body));
-  }
+  update: async (req, res, next) => {
+    const { id } = req.params;
+    res.json(await models.update(name, id, req.body));
+  },
 
-  async delete(req, res, next) {
-    res.json(await this.models.delete(this.name, req.body));
-  }
-}
-
-module.exports = Controllers;
+  delete: async (req, res, next) => {
+    const { id } = req.params;
+    res.json(await models.delete(name, id));
+  },
+});

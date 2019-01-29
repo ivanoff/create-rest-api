@@ -30,8 +30,24 @@ class Models {
     return this.db(name).insert(body).returning('*');
   }
 
-  async delete(name, body) {
-    return this.db(name).where(body).delete();
+  async update(name, id, body) {
+    return this.db(name).update(body).where({id});
+  }
+
+  async replace(name, id, body) {
+    return this.db.transaction(async trx => {
+      try {
+        await this.db(name).transacting(trx).where({id}).delete();
+        await this.db(name).transacting(trx).insert({...body, id});
+        await trx.commit();
+      } catch(err) {
+        await trx.rollback(err);
+      }
+    })
+  }
+
+  async delete(name, id) {
+    return this.db(name).where({id}).delete();
   }
 }
 

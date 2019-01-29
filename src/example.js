@@ -38,7 +38,7 @@ api.links('books', 'writers');
 api.links('comments', ['books', 'writers']);
 api.freeAccess('comments', ['GET', 'POST'])
 
-//=== USUAL USAGE ===
+//=== USAGE ===
 
 // index.js
 api.model('books');

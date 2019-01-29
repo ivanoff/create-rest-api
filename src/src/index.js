@@ -1,39 +1,54 @@
-const winston = require('winston');
 const Express = require('express');
-const Knex = require('knex');
-const errors = require('./errors');
-const Routes = require('./routes');
-const Controllers = require('./controllers');
-const Models = require('./models');
+
 const Login = require('./routes/login');
+
 const Base = require('./base');
 
 class Api extends Base {
   constructor(config) {
     super(config);
-    this.db = Knex(config.db);
 
     this.app = new Express();
     this.app.use(Express.json());
     this.app.use(Express.urlencoded({ extended: true }));
 
-    this.models = new Models(this.db);
-    this.routes = new Routes(this.app);
+    new Login({ config, app: this.app, models: this.models });
 
-    new Login({config, app: this.app, models: this.models});
+    // Show incoming information
+    let id = 0;
+    this.app.use((req, res, next) => {
+      req._id = ++id;
+      this.log.debug(`${req._id} [IN] ${req.method}, ${req.url}`);
+      this.log.debug(`${req._id} [IN] ${JSON.stringify([
+        { params: req.params, query: req.query, body: req.body },
+        { headers: req.headers },
+      ])}`);
+      next();
+    });
+
+    // Show outgoing information by overriding send method
+    this.app.use((req, res, next) => {
+      const _send = res.send;
+      res.send = (body) => {
+        this.log.debug(`${req._id} [OUT] ${body}`);
+        _send.call(res, body);
+      };
+
+      next();
+    });
   }
 
   destroy() {
     this.stop();
-    this.db.destroy();
+    super.destroy();
   }
 
   async model(name, schema, opt) {
-    if (!name) return;
+    if (!name) throw new Error(this.error.NO_NAME);
+
     this.log.debug(`${opt} to-do...`);
-    const c = new Controllers({ models: this.models, name });
     await Promise.all([
-      this.routes.create(name, c),
+      this.routes(name, this.app, this.controllers),
       this.models.create(name, schema),
     ]);
     this.log.info(`${name} model registered`);
@@ -56,8 +71,26 @@ class Api extends Base {
   }
 
   async start() {
-    const { host, port } = this.config.server;
+    this.app.use((req, res, next) => {
+      if (res.headersSent) return next();
+      next(`Cannot ${req.method} ${req.path}`);
+    });
+
+    this.app.use((err, req, res, next) => {
+      if (err.stack) {
+        //        this.error
+        //        this.log.error(req._id, err.stack);
+        //        req._error.INTERNAL_SERVER_ERROR('Oops... Something Went Wrong! #' + req._id);
+      } else {
+        //        req._error.BAD_REQUEST(err);
+      }
+
+      next();
+    });
+
+    const { host, port, standalone } = this.config.server;
     return new Promise((resolve, reject) => {
+      if (standalone) return resolve();
       this.server = this.app.listen(port, host, (err) => {
         if (err) return reject(err);
         this.log.info(`server started on ${host || '*'}:${port}`);

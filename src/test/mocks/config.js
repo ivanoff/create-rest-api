@@ -12,8 +12,8 @@ module.exports = {
   },
 
   admin: {
-    login:'admin',
-    password:'test',
+    login: 'admin',
+    password: 'test',
   },
 
   token: {
@@ -21,4 +21,4 @@ module.exports = {
     expire: 10,
   },
 
-}
+};

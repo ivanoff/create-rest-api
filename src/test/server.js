@@ -13,15 +13,14 @@ describe('Server check', () => {
     before(async () => {
       api = new Api(config);
       await api.start();
-    })
+    });
 
-    after(() => api.destroy())
+    after(() => api.destroy());
 
     it('Check connection', async () => {
       request(url);
       expect(true);
     });
-
   });
 
   describe('One model', () => {
@@ -29,26 +28,25 @@ describe('Server check', () => {
       api = new Api(config);
       api.model('books', { name: 'string' });
       await api.start();
-      r = request(url);
-    })
+      r = () => request(url);
+    });
 
-    after(() => api.destroy())
+    after(() => api.destroy());
 
     it('get model returns 200', async () => {
-      let res = await r.get('/books');
+      const res = await r().get('/books');
       expect(res).to.have.status(200);
     });
 
     it('get model has body', async () => {
-      let res = await r.get('/books');
+      const res = await r().get('/books');
       expect(res).to.have.property('body');
     });
 
     it('result is empty array', async () => {
-      let res = await r.get('/books');
+      const res = await r().get('/books');
       expect(res.body).to.eql([]);
     });
-
   });
 
   describe('Two servers', () => {
@@ -65,35 +63,33 @@ describe('Server check', () => {
       api2.model('movies', { name: 'string' });
       await api.start();
       await api2.start();
-      r = request(url);
-      r2 = request(url2);
-    })
+      r = () => request(url);
+      r2 = () => request(url2);
+    });
 
     after(() => {
       api.destroy();
       api2.destroy();
-    })
+    });
 
     it('get first server model returns 200', async () => {
-      let res = await r.get('/books');
+      const res = await r().get('/books');
       expect(res).to.have.status(200);
     });
 
     it('get second server model returns 200', async () => {
-      let res = await r2.get('/movies');
+      const res = await r2().get('/movies');
       expect(res).to.have.status(200);
     });
 
     it('get first server wrong model returns 404', async () => {
-      let res = await r.get('/movies');
+      const res = await r().get('/movies');
       expect(res).to.have.status(404);
     });
 
     it('get second server wrong model returns 404', async () => {
-      let res = await r2.get('/books');
+      const res = await r2().get('/books');
       expect(res).to.have.status(404);
     });
-
   });
-
 });

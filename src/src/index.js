@@ -1,41 +1,23 @@
 const Express = require('express');
 
 const Login = require('./routes/login');
+const logsRoute = require('./routes/logs');
+const securityRoute = require('./routes/security');
 
 const Base = require('./base');
 
 class Api extends Base {
   constructor(config) {
     super(config);
+    this.freeAccess = {};
 
     this.app = new Express();
     this.app.use(Express.json());
     this.app.use(Express.urlencoded({ extended: true }));
+    this.app.use(logsRoute(this.log));
+    this.app.use(securityRoute(this.freeAccess, this.error));
 
     new Login({ config, app: this.app, models: this.models });
-
-    // Show incoming information
-    let id = 0;
-    this.app.use((req, res, next) => {
-      req._id = ++id;
-      this.log.debug(`${req._id} [IN] ${req.method}, ${req.url}`);
-      this.log.debug(`${req._id} [IN] ${JSON.stringify([
-        { params: req.params, query: req.query, body: req.body },
-        { headers: req.headers },
-      ])}`);
-      next();
-    });
-
-    // Show outgoing information by overriding send method
-    this.app.use((req, res, next) => {
-      const _send = res.send;
-      res.send = (body) => {
-        this.log.debug(`${req._id} [OUT] ${body}`);
-        _send.call(res, body);
-      };
-
-      next();
-    });
   }
 
   destroy() {
@@ -43,10 +25,12 @@ class Api extends Base {
     super.destroy();
   }
 
-  async model(name, schema, opt) {
+  async model(name, schema, opt = {}) {
     if (!name) throw new Error(this.error.NO_NAME);
 
-    this.log.debug(`${opt} to-do...`);
+    const { freeAccess } = opt;
+    this.freeAccess[name] = freeAccess;
+
     await Promise.all([
       this.routes(name, this.app, this.controllers),
       this.models.create(name, schema),
@@ -77,6 +61,7 @@ class Api extends Base {
     });
 
     this.app.use((err, req, res, next) => {
+console.log(err)
       if (err.stack) {
         //        this.error
         //        this.log.error(req._id, err.stack);

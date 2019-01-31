@@ -37,5 +37,5 @@ module.exports = models => name => ({
   delete: async (req, res, next) => {
     const { id } = req.params;
     res.json(await models.delete(name, id));
-  },
+  }
 });

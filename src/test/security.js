@@ -6,17 +6,17 @@ const Api = require('../src');
 describe('Security', () => {
   let api;
   let r;
-  const movies = [
-    { name: 'Hot Fuzz' },
-  ];
-  const comments = [
-    { name: 'Edgar', comment: 'the best movie))' }
-  ];
+  const movies = [{ name: 'Hot Fuzz' }];
+  const comments = [{ name: 'Edgar', comment: 'the best movie))' }];
+  const directors = [{ name: 'Edgar Wright' }];
+  const actors = [{ name: 'Simon Pegg' }];
 
   before(async () => {
     api = new Api(config);
     api.model('movies', { name: 'string' });
-    api.model('comments', { name: 'string', comment: 'integer' }, { freeAccess: ['GET', 'POST'] });
+    api.model('comments', { name: 'string', comment: 'integer' }, { openMethods: ['GET', 'POST'], denyMethods: ['PUT', 'DELETE'] });
+    api.model('directors', { name: 'string' }, { openMethods: 'GET', denyMethods: 'DELETE' });
+    api.model('actors', { name: 'string' }, { openMethods: '*' });
     r = () => request(api.app);
   });
 
@@ -49,7 +49,7 @@ describe('Security', () => {
     });
   })
 
-  describe('Check free access', () => {
+  describe('Check free access to GET and POST', () => {
     it('get comments returns 200', async () => {
       const res = await r().get('/comments');
       expect(res).to.have.status(200);
@@ -67,12 +67,66 @@ describe('Security', () => {
 
     it('put comments returns 401', async () => {
       const res = await r().put('/comments/1').send(comments[0]);
-      expect(res).to.have.status(401);
+      expect(res).to.have.status(405);
     });
 
     it('delete comments returns 401', async () => {
       const res = await r().delete('/comments/1');
+      expect(res).to.have.status(405);
+    });
+  });
+
+  describe('Check GET only free access', () => {
+    it('get directors returns 200', async () => {
+      const res = await r().get('/directors');
+      expect(res).to.have.status(200);
+    });
+
+    it('post directors returns 201', async () => {
+      const res = await r().post('/directors').send(directors[0]);
       expect(res).to.have.status(401);
+    });
+
+    it('patch directors returns 401', async () => {
+      const res = await r().patch('/directors/1').send(directors[0]);
+      expect(res).to.have.status(401);
+    });
+
+    it('put directors returns 401', async () => {
+      const res = await r().put('/directors/1').send(directors[0]);
+      expect(res).to.have.status(401);
+    });
+
+    it('delete directors returns 401', async () => {
+      const res = await r().delete('/directors/1');
+      expect(res).to.have.status(405);
+    });
+  });
+
+  describe('Check free access to all methods', () => {
+    it('get actors returns 200', async () => {
+      const res = await r().get('/actors');
+      expect(res).to.have.status(200);
+    });
+
+    it('post actors returns 201', async () => {
+      const res = await r().post('/actors').send(actors[0]);
+      expect(res).to.have.status(201);
+    });
+
+    it('patch actors returns 401', async () => {
+      const res = await r().patch('/actors/1').send(actors[0]);
+      expect(res).to.have.status(200);
+    });
+
+    it('put actors returns 401', async () => {
+      const res = await r().put('/actors/1').send(actors[0]);
+      expect(res).to.have.status(200);
+    });
+
+    it('delete actors returns 401', async () => {
+      const res = await r().delete('/actors/1');
+      expect(res).to.have.status(200);
     });
   });
 

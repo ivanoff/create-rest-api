@@ -1,7 +1,11 @@
-module.exports = (freeAccess, error) => (req, res, next) => {
-  const { url, method } = req;
-  const name = url.match( /^\/([^\/]+)/ );
+const error = require('../errors');
 
-  const free = name && freeAccess[name[1]] && freeAccess[name[1]].includes(method);
-  next( !free && error.ACCESS_DENIED );
+module.exports = (openMethods, denyMethods = []) => (req, res, next) => {
+  const methodsDenied = Array.isArray(denyMethods) ? denyMethods : [denyMethods];
+  const accessDenied = methodsDenied.includes(req.method);
+
+  const methods = Array.isArray(openMethods) ? openMethods : [openMethods];
+  const accessGranted = openMethods && ( methods.includes(req.method) || methods.includes('*') );
+
+  return next( accessDenied? error.METHOD_NOT_ALLOWED : !accessGranted ? error.ACCESS_DENIED : undefined );
 };

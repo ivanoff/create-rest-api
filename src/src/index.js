@@ -2,22 +2,23 @@ const Express = require('express');
 
 const Login = require('./routes/login');
 const logsRoute = require('./routes/logs');
-const securityRoute = require('./routes/security');
 
 const Base = require('./base');
 
 class Api extends Base {
   constructor(config) {
     super(config);
-    this.freeAccess = {};
 
     this.app = new Express();
     this.app.use(Express.json());
     this.app.use(Express.urlencoded({ extended: true }));
     this.app.use(logsRoute(this.log));
-    this.app.use(securityRoute(this.freeAccess, this.error));
 
-    new Login({ config, app: this.app, models: this.models });
+    if(config.token) {
+      new Login({ config, app: this.app, models: this.models });
+    } else {
+      this.log.warn('No token provided. All models are available without token.');
+    }
   }
 
   destroy() {
@@ -28,11 +29,12 @@ class Api extends Base {
   async model(name, schema, opt = {}) {
     if (!name) throw new Error(this.error.NO_NAME);
 
-    const { freeAccess } = opt;
-    this.freeAccess[name] = freeAccess;
+    let { links, openMethods, denyMethods } = opt;
+    if(!this.config.token) openMethods = '*';
+//    this.links.push()
 
     await Promise.all([
-      this.routes(name, this.app, this.controllers),
+      this.routes(name, this.app, this.controllers, openMethods, denyMethods),
       this.models.create(name, schema),
     ]);
     this.log.info(`${name} model registered`);
@@ -42,11 +44,11 @@ class Api extends Base {
     this.log.debug('to-do...');
   }
 
-  async freeAccess(name, schema) {
+  async openMethods(name, schema) {
     this.log.debug('to-do...');
     // if (!Array.isArray(schema)) schema = [schema];
     for (let i = 0; i < schema.length; i++) {
-      this.models.freeAccess(name, schema[i]);
+      this.models.openMethods(name, schema[i]);
     }
   }
 
@@ -61,7 +63,7 @@ class Api extends Base {
     });
 
     this.app.use((err, req, res, next) => {
-console.log(err)
+//console.log(err)
       if (err.stack) {
         //        this.error
         //        this.log.error(req._id, err.stack);

@@ -12,6 +12,7 @@ class Base {
 
     this.db = Knex(this.config.db);
     this.log = this.initLog();
+    this.freeAccess = {};
 
     this.models = new Models(this.db);
     this.routes = routes;

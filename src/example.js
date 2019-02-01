@@ -5,9 +5,9 @@ const api = new Api(config);
 
 api.model('books', { name: 'string' }, { links: 'writers' });
 
-api.model('writers', { name: 'string', birth: { type: 'date', required: true } } );
+api.model('writers', { name: 'string', birth: { type: 'date', required: true } });
 
-api.model('coments', { name: 'string', comment: 'string' }, { links: ['writers', 'books'], freeAccess: ['GET', 'POST'] });
+api.model('coments', { name: 'string', comment: 'string' }, { links: ['writers', 'books'], openMethods: ['GET', 'POST'] });
 
 api.start();
 
@@ -27,7 +27,7 @@ create table comments_writers(id serial PRIMARY KEY, comments integer references
 // #2 CASE migration.js
 api.model('books', { name: 'string' }, { links: 'writers', recreate: true });
 api.model('writers', { name: 'string', birth: { type: 'date', required: true } }, { recreate: true } );
-api.model('coments', { name: 'string', comment: 'string' }, { links: ['writers', 'books'], freeAccess: ['GET', 'POST'], recreate: true });
+api.model('coments', { name: 'string', comment: 'string' }, { links: ['writers', 'books'], openMethods: ['GET', 'POST'], recreate: true });
 
 // #3 CASE migration.js
 api.recreate();
@@ -36,7 +36,7 @@ api.model('writers', { name: 'string', birth: { type: 'date', required: true } }
 api.model('coments', { name: 'string', comment: 'string' });
 api.links('books', 'writers');
 api.links('comments', ['books', 'writers']);
-api.freeAccess('comments', ['GET', 'POST'])
+api.openMethods('comments', ['GET', 'POST'])
 
 //=== USAGE ===
 

@@ -11,4 +11,10 @@ module.exports = {
     message: 'Access denied',
     developerMessage: 'additional',
   },
+  METHOD_NOT_ALLOWED: {
+    status: 405,
+    name: 'METHOD_NOT_ALLOWED',
+    message: 'Method Not Allowed',
+    developerMessage: 'additional',
+  },
 };

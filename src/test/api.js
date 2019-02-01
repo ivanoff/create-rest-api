@@ -14,7 +14,7 @@ describe('main API', () => {
   ];
 
   before(async () => {
-    api = new Api(config);
+    api = new Api({...config, token: undefined});
     api.model('movies', { name: 'string', rates: 'integer' });
     r = () => request(api.app);
   });

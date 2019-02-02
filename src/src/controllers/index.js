@@ -23,24 +23,26 @@ module.exports = models => name => ({
     let currentSchema = models.schema[name];
 
     let updateLinks = [];
+
     for(let key of Object.keys(body)) {
       if(key === 'id' || currentSchema[key] || !models.schema[key]) continue;
+      const linkedName = key;
 
-      // key is other API's model
-      for(let data of [].concat(body[key])) {
-        if(typeof data !== 'number') {
-          const result = await models.get(key, data);
-          data = result[0].id
+      for(let id of [].concat(body[linkedName])) {
+        if(typeof id !== 'number') {
+          id = (await models.get(key, id))[0].id;
         }
-        updateLinks.push( {table: [name, key].sort().join('_'), fields: {[key]: data}} )
+        updateLinks.push( {table: [name, linkedName].sort().join('_'), fields: {[linkedName]: id}} )
       }
-      delete body[key];
+      delete body[linkedName];
     }
 
     const doc = await models.insert(name, body);
+
     for(let data of updateLinks) {
       await models.insert(data.table, {[name]: doc.id, ...data.fields});
     }
+
     res.location(`/${name}/${doc.id}`);
     res.status(201).json(doc);
   },

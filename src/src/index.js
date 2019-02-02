@@ -8,15 +8,14 @@ const Base = require('./base');
 class Api extends Base {
   constructor(config) {
     super(config);
+    this.links = [];
 
     this.app = new Express();
     this.app.use(Express.json());
     this.app.use(Express.urlencoded({ extended: true }));
     this.app.use(logsRoute(this.log));
 
-    if(config.token) {
-      new Login({ config, app: this.app, models: this.models });
-    } else {
+    if(!config.token) {
       this.log.warn('No token provided. All models are available without token.');
     }
   }
@@ -30,12 +29,12 @@ class Api extends Base {
     if (!name) throw new Error(this.error.NO_NAME);
 
     let { links, openMethods, denyMethods } = opt;
+    if (links) this.links.push( {[name]: links} )
     if(!this.config.token) openMethods = '*';
-//    this.links.push()
 
     await Promise.all([
       this.routes(name, this.app, this.controllers, openMethods, denyMethods),
-      this.models.create(name, schema),
+      this.models.create(name, schema, links),
     ]);
     this.log.info(`${name} model registered`);
   }
@@ -57,6 +56,10 @@ class Api extends Base {
   }
 
   async start() {
+    if(this.config.token) {
+      new Login({ config: this.config, app: this.app, models: this.models });
+    }
+
     this.app.use((req, res, next) => {
       if (res.headersSent) return next();
       next(`Cannot ${req.method} ${req.path}`);

@@ -3,11 +3,13 @@ const LoginModel = require('./login');
 class Models {
   constructor(db) {
     this.db = db;
+    this.schema = {};
     this.login = new LoginModel(this.db);
   }
 
-  async create(name, schema) {
-    await this.db.schema.createTable(name, (table) => {
+  async create(name, schema, links) {
+    this.schema[name] = schema;
+    await this.db.schema.createTable(name, table => {
       table.increments();
       table.timestamps();
       // look Adds an integer column at knexjs.org
@@ -18,6 +20,20 @@ class Models {
       }
     });
     // console.log(await this.db.table(name).columnInfo());
+
+    // create link table
+    if(links) {
+      for(let link of [].concat(links)) {
+        const tableName = [name, link].sort().join('_');
+        if(await this.db.schema.hasTable(tableName)) continue;
+        await this.db.schema.createTable(tableName, table => {
+          table.increments();
+          table.integer(name);
+          table.integer(link);
+        })
+        //console.log(`${tableName} link table created`);
+      }
+    }
   }
 
   async get(name, where = []) {

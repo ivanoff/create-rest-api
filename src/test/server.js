@@ -26,7 +26,7 @@ describe('Server check', () => {
   describe('One model', () => {
     before(async () => {
       api = new Api({...config, token: undefined});
-      api.model('books', { name: 'string' });
+      await api.model('books', { name: 'string' });
       await api.start();
       r = () => request(url);
     });

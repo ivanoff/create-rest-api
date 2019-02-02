@@ -13,10 +13,10 @@ describe('Security', () => {
 
   before(async () => {
     api = new Api(config);
-    api.model('movies', { name: 'string' });
-    api.model('comments', { name: 'string', comment: 'integer' }, { openMethods: ['GET', 'POST'], denyMethods: ['PUT', 'DELETE'] });
-    api.model('directors', { name: 'string' }, { openMethods: 'GET', denyMethods: 'DELETE' });
-    api.model('actors', { name: 'string' }, { openMethods: '*' });
+    await api.model('movies', { name: 'string' });
+    await api.model('comments', { name: 'string', comment: 'integer' }, { openMethods: ['GET', 'POST'], denyMethods: ['PUT', 'DELETE'] });
+    await api.model('directors', { name: 'string' }, { openMethods: 'GET', denyMethods: 'DELETE' });
+    await api.model('actors', { name: 'string' }, { openMethods: '*' });
     r = () => request(api.app);
   });
 

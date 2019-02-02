@@ -19,7 +19,31 @@ module.exports = models => name => ({
   },
 
   post: async (req, res, next) => {
-    const doc = await models.post(name, req.body);
+    let { body } = req;
+    let schema = models.schema[name];
+console.log('????')
+console.log(name)
+console.log(schema)
+console.log(body)
+
+    let updateLinks = [];
+    for(let key of Object.keys(body)) {
+      if(key === 'id' || schema[key] || !models.schema[key]) continue;
+
+      // key is other API's model
+      for(let data of [].concat(body[key])) {
+        updateLinks.push( {table: [[name, key].sort().join('_')], fields: {[key]: data}} )
+      }
+console.log(`${key} in ${name} is unused: `, body[key])
+      delete body[key];
+    }
+    const doc = await models.post(name, body);
+
+console.log(doc, updateLinks);
+    for(let data of updateLinks) {
+console.log(` models.db(${data.table}).insert({[${name}]: ${doc[0]}, `, data.fields);
+      await models.db(data.table).insert({[name]: doc[0], ...data.fields});
+    }
     res.location(`/${name}/${doc.id}`);
     res.status(201).json(doc);
   },

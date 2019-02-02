@@ -10,7 +10,7 @@ class Models {
   async create(name, schema, links) {
     this.schema[name] = schema;
     await this.db.schema.createTable(name, table => {
-      table.increments();
+      table.increments('id');
       table.timestamps();
       // look Adds an integer column at knexjs.org
       for (const key in schema) {
@@ -37,13 +37,12 @@ class Models {
   }
 
   async get(name, where = []) {
-    const res = this.db(name).select('*');
-    for (const w of where) res.where(...w);
-    return res;
+    return this.db(name).select('*').where(where);
   }
 
-  async post(name, body) {
-    return this.db(name).insert(body).returning('*');
+  async insert(name, body) {
+    const r = await this.db(name).insert(body).returning('*');
+    return typeof r[0] === 'number'? {id: r[0]} : r[0];
   }
 
   async update(name, id, body) {

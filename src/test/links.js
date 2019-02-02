@@ -6,13 +6,14 @@ const Api = require('../src');
 describe.only('Linked models', () => {
   let api;
   let r;
-  const movies = [
-    { id: 1, name: 'Hot Fuzz' },
-    { id: 2, name: 'Baby driver', genres: [{name: 'Action'}, {name:'Crime'}] },
-  ];
   const genres = [
-    { id: 1, name: 'Comedy', movies: 1 },
-    { id: 2, name: 'Action' },
+    { id: 1, name: 'Action', movies: 1 },
+    { id: 2, name: 'Comedy' },
+    { id: 3, name: 'Crime', movies: 1 },
+  ];
+  const movies = [
+    { id: 1, name: 'Baby driver' },
+    { id: 2, name: 'Hot Fuzz', genres: [{name: 'Action'}, {}, {name: 'Comedy'}] },
   ];
   const actors = [
     { name: 'Simon Pegg' },
@@ -24,8 +25,8 @@ describe.only('Linked models', () => {
   before(async () => {
     api = new Api({...config, token: undefined, server: {standalone: true}});
     const name = 'string';
-    await api.model('movies', { name }, { links: [ 'genres', 'directors' ]});
     await api.model('genres', { name });
+    await api.model('movies', { name }, { links: [ 'genres', 'directors' ]});
     await api.model('actors', { name }, { links: 'movies'});
     await api.model('directors', { name }, { links: 'movies'});
     await api.start();
@@ -35,15 +36,24 @@ describe.only('Linked models', () => {
   after(() => api.destroy());
 
   describe('Add data', () => {
+    it('add first genres', async () => {
+      const res = await r().post('/genres').send(genres[0]);
+      expect(res).to.have.status(201);
+    });
+
+    it('add genres', async () => {
+      await r().post('/genres').send(genres[1]);
+      await r().post('/genres').send(genres[2]);
+    });
+
     it('add movies', async () => {
-console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
       await r().post('/movies').send(movies[0]);
       const res = await r().post('/movies').send(movies[1]);
       expect(res).to.have.status(201);
     });
 
     it('add actor', async () => {
-      const res = await r().post('/movies/1/actors').send(actors[0]);
+      const res = await r().post('/movies/2/actors').send(actors[0]);
       expect(res).to.have.status(201);
     });
 
@@ -52,11 +62,6 @@ console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
       expect(res).to.have.status(201);
     });
 
-    it('add genres', async () => {
-      await r().post('/genres').send(genres[0]);
-      const res = await r().post('/genres').send(genres[1]);
-      expect(res).to.have.status(201);
-    });
   });
 
 });

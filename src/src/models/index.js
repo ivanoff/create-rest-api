@@ -4,6 +4,7 @@ class Models {
   constructor(db) {
     this.db = db;
     this.schema = {};
+    this.linkedNames = {};
     this.login = new LoginModel(this.db);
   }
 

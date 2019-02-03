@@ -56,6 +56,9 @@ class Api extends Base {
   }
 
   async start() {
+
+//console.log(JSON.stringify(this.models.linkedNames, null, '  '))
+
     if(this.config.token) {
       new Login({ config: this.config, app: this.app, models: this.models });
     }

@@ -64,4 +64,11 @@ describe.only('Linked models', () => {
 
   });
 
+  describe('Check', () => {
+    it('movies by director', async () => {
+      const res = await r().get('/directors/1/movies');
+      expect(res).to.have.status(200);
+    });
+  });
+
 });

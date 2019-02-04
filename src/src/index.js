@@ -33,7 +33,7 @@ class Api extends Base {
     if(!this.config.token) openMethods = '*';
 
     await Promise.all([
-      this.routes(name, this.app, this.controllers, openMethods, denyMethods),
+      this.routes(name, this.app, this.controllers, openMethods, denyMethods, links),
       this.models.create(name, schema, links),
     ]);
     this.log.info(`${name} model registered`);
@@ -57,7 +57,7 @@ class Api extends Base {
 
   async start() {
 
-//console.log(JSON.stringify(this.models.linkedNames, null, '  '))
+//console.log(JSON.stringify(this.models.delayedData, null, '  '))
 
     if(this.config.token) {
       new Login({ config: this.config, app: this.app, models: this.models });

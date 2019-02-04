@@ -4,7 +4,8 @@ class Models {
   constructor(db) {
     this.db = db;
     this.schema = {};
-    this.linkedNames = {};
+    this.delayedData = {};
+    this.getLinkedTableName = (...tables) => tables.sort().join('_');
     this.login = new LoginModel(this.db);
   }
 
@@ -25,7 +26,7 @@ class Models {
     // create link table
     if(links) {
       for(let link of [].concat(links)) {
-        const tableName = [name, link].sort().join('_');
+        const tableName = this.getLinkedTableName(name, link);
         if(await this.db.schema.hasTable(tableName)) continue;
         await this.db.schema.createTable(tableName, table => {
           table.increments();

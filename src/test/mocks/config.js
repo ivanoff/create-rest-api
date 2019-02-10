@@ -11,11 +11,6 @@ module.exports = {
     useNullAsDefault: true,
   },
 
-  admin: {
-    login: 'admin',
-    password: 'test',
-  },
-
   token: {
     secret: 'TEST',
     expire: 10,

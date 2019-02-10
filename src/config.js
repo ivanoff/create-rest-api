@@ -10,11 +10,6 @@ module.exports = {
     connection: ':memory:',
   },
 
-  admin: {
-    login:'admin',
-    password:'admin',
-  },
-
   token: {
     secret: 'REPLACE_IT',
     expire: 10,

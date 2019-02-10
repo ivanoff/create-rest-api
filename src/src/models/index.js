@@ -5,6 +5,7 @@ class Models {
     this.db = db;
     this.schema = {};
     this.delayedData = {};
+    this.dD = {};
     this.getLinkedTableName = (...tables) => tables.sort().join('_');
     this.login = new LoginModel(this.db);
   }
@@ -38,8 +39,22 @@ class Models {
     }
   }
 
-  async get(name, where = []) {
-    return this.db(name).select('*').where(where);
+  async get({name, link, where = {}} = {}) {
+//console.log({name, link, where})
+    let r;
+    if(link) {
+      const tableName = this.getLinkedTableName(name, link);
+      where[`${tableName}.${name}`] = where.id;
+      delete where.id;
+//console.log({name, link, where})
+//console.log(`${link}.id`,`${tableName}.${link}`)
+//console.log(await this.db(tableName).select('*').leftJoin(link, `${link}.id`,`${tableName}.${link}`).where(where));
+      r = this.db(tableName).select(`${link}.*`).leftJoin(link, `${link}.id`,`${tableName}.${link}`);
+    } else {
+      r = this.db(name).select('*');
+    }
+    r.where(where);
+    return r;
   }
 
   async insert(name, body) {

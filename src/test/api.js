@@ -17,6 +17,7 @@ describe('main API', () => {
     api = new Api({...config, token: undefined});
     await api.model('movies', { name: 'string', rates: 'integer' });
     r = () => request(api.app);
+    await api.start();
   });
 
   after(() => api.destroy());

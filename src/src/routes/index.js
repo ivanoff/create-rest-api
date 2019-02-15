@@ -1,6 +1,6 @@
 const security = require('./security');
 
-module.exports = (name, app, controller, openMethods, denyMethods, links) => {
+module.exports = (name, app, controller, openMethods, denyMethods, links, wrapAsync) => {
   const c = controller(name);
 
   const path = `/${name}`;
@@ -9,14 +9,14 @@ module.exports = (name, app, controller, openMethods, denyMethods, links) => {
   app.use(path, security(openMethods, denyMethods));
   app.use(pathId, security(openMethods, denyMethods));
 
-  app.get(path, c.get.bind(c));
-  app.post(path, c.post.bind(c));
-  app.delete(path, c.delete.bind(c));
+  app.get(path, wrapAsync( c.get ));
+  app.post(path, wrapAsync( c.post ));
+  app.delete(path, wrapAsync( c.delete ));
 
-  app.get(pathId, c.get.bind(c));
-  app.patch(pathId, c.update.bind(c));
-  app.put(pathId, c.replace.bind(c));
-  app.delete(pathId, c.delete.bind(c));
+  app.get(pathId, wrapAsync( c.get ));
+  app.patch(pathId, wrapAsync( c.update ));
+  app.put(pathId, wrapAsync( c.replace ));
+  app.delete(pathId, wrapAsync( c.delete ));
 
   if(links) {
     for(let link of [].concat(links)) {
@@ -27,10 +27,10 @@ module.exports = (name, app, controller, openMethods, denyMethods, links) => {
       app.use(pathIdlinked1, security(openMethods, denyMethods));
       app.use(pathIdlinked2, security(openMethods, denyMethods));
 
-      app.get(pathIdlinked1, c1.get.bind(c1));
-      app.get(pathIdlinked2, c2.get.bind(c2));
-      app.post(pathIdlinked1, c1.post.bind(c1));
-      app.post(pathIdlinked2, c2.post.bind(c2));
+      app.get(pathIdlinked1, wrapAsync( c1.get ));
+      app.get(pathIdlinked2, wrapAsync( c2.get ));
+      app.post(pathIdlinked1, wrapAsync( c1.post ));
+      app.post(pathIdlinked2, wrapAsync( c2.post ));
     }
   }
 

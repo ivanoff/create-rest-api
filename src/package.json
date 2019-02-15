@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node example.js",
     "test": "NODE_ENV=test LOG_LEVEL=error node_modules/.bin/mocha",
-    "coverage": "NODE_ENV=test LOG_LEVEL=error istanbul cover node_modules/.bin/_mocha -- -- test/*.js",
+    "coverage": "NODE_ENV=test LOG_LEVEL=error nyc node_modules/.bin/_mocha -- test/*.js",
     "lint": "eslint src/ --cache --ignore-pattern .gitignore",
     "fix": "eslint src/ --ignore-pattern .gitignore --fix"
   },
@@ -28,8 +28,8 @@
     "eslint": "^5.12.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.15.0",
-    "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
+    "nyc": "^13.3.0",
     "pre-commit": "^1.2.2",
     "sqlite3": "^4.0.6"
   },

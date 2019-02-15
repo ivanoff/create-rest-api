@@ -3,7 +3,7 @@ const config = require('./config');
 const Api = require('./src');
 const api = new Api(config);
 
-api.user({login: 'l', password: 'p'};
+api.user({login: 'l', password: 'p'});
 
 api.model('books', { name: 'string' }, { links: 'writers' });
 

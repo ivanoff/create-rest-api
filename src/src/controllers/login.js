@@ -4,48 +4,61 @@ const jwt = require('jsonwebtoken');
 class LoginController {
   constructor({ config, models }) {
     this.models = models;
-    this.secret = config.token ? config.token.secret : undefined;
-    if (!this.secret) throw (new Error('NO_TOKEN_SECRET'));
+    if (!config.token.secret) throw ('NO_TOKEN_SECRET');
+    this.secret = config.token.secret;
+    this.expire = config.token.expire;
+
+    this.aa = async (cb, res, next) => {
+      try {
+        res.json(await cb)
+      } catch(err) {
+        next(err)
+      }
+    }
   }
 
-  async login(req, res, next) {
-    const { login, password } = req.body;
-    const user = await this.models.login.search({ login, password });
-    return res.json(await this._updateUserData(user));
+  async login(req, res) {
+    const { login, password, refresh } = req.body;
+    const user = await this.models.login.search({ login, password, refresh });
+    res.json(await this._updateUserData(user));
   }
 
-  async update(req, res, next) {
-    const decoded = jwt.decode(this._getToken(req), this.secret);
-    const user = await this.models.login.search({ refreshToken: decoded.refreshToken });
-    return res.json(await this._updateUserData(user));
+  async login2(req, ...args) {
+    const { login, password, refresh } = req.body;
+    const user = await this.models.login.search({ login, password, refresh });
+    this.aa(this._updateUserData(user), ...args);
   }
 
-  async info(req, res, next) {
-    const decoded = jwt.decode(this._getToken(req), this.secret);
-    res.json(decoded);
+  async update(req, ...args) {
+    const user = await this.models.login.search({ refresh: this._decoded(req).refresh });
+    this.aa(this._updateUserData(user), ...args);
   }
 
-  _getToken(req) {
+  async info(req, ...args) {
+    this.aa(this._decoded(req), ...args);
+  }
+
+  _decoded(req) {
     const token = req.headers['x-access-token'] || req.body.token || req.query.token;
-    if (!token) throw (new Error(base.error.NO_TOKEN));
-    return token;
+    if (!token) throw 'NO_TOKEN';
+    return jwt.decode(token, this.secret);
   }
 
   async _updateUserData(user) {
-    if (!user) throw (new Error('USER_NOT_FOUND'));
+    if (!user) throw 'USER_NOT_FOUND';
 
-    const refreshToken = uuid.v4();
+    const refresh = uuid.v4();
 
     const {
       id, login, group, name,
     } = user;
     const data = {
-      id, login, group, name, refreshToken,
+      id, login, group, name, refresh,
     };
 
-    const token = jwt.sign(data, this.secret, { expiresIn: config.token.expire || 60 });
+    const token = jwt.sign(data, this.secret, { expiresIn: this.expire || 60 });
 
-    await this.models.login.update(user, { refreshToken });
+    await this.models.login.update(user, { refresh });
 
     return { ...data, token };
   }

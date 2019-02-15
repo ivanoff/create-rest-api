@@ -23,7 +23,7 @@ describe('Linked models', () => {
   ];
 
   before(async () => {
-    api = new Api({...config, token: undefined, server: {standalone: true}});
+    api = new Api({...config, token: undefined});
     const name = 'string';
     await api.model('movies', { name }, { links: [ 'genres', 'directors' ]});
     await api.model('genres', { name });

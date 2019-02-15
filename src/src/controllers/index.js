@@ -15,8 +15,9 @@ module.exports = models => {
 
       const data = await models.get({name, link, where});
 
+      if(id && !link && !data[0]) throw 'NOT_FOUND';
+
       if(id && !link) {
-        if(!data[0]) res.status(404);
         res.json(data[0]);
       } else {
         res.json(data);
@@ -25,7 +26,7 @@ module.exports = models => {
 
     post: async (req, res, next) => {
       let { body } = req;
-      let currentSchema = models.schema[name];
+      let currentSchema = models.schema[name] || {};
 
       if(link) {
         const { id } = req.params;
@@ -46,7 +47,7 @@ module.exports = models => {
       for(let [table2, data2] of Object.entries(linkedData)) {
         if( (realName) === table2 ) continue;
         let key = `${realName}/${result1.id}/${table2}`;
-        models.dD[key] = (models.dD[key] || []).concat(data2);
+        models.delayedData[key] = (models.delayedData[key] || []).concat(data2);
       }
 
       await processLinked();
@@ -55,33 +56,41 @@ module.exports = models => {
       res.status(201).json(result1);
     },
 
-    replace: async (req, res, next) => {
+    replace: async (req, ...args) => {
       const { id } = req.params;
-      res.json(await models.replace(name, id, req.body));
+      aa(await models.replace(name, id, req.body),  ...args);
     },
 
-    update: async (req, res, next) => {
+    update: async (req, ...args) => {
       const { id } = req.params;
-      res.json(await models.update(name, id, req.body));
+      aa(models.update(name, id, req.body), ...args);
     },
 
-    delete: async (req, res, next) => {
+    delete: async (req, ...args) => {
       const { id } = req.params;
-      res.json(await models.delete(name, id));
+      aa(models.delete(name, id), ...args);
     },
 
   });
+
+  async function aa(cb, res, next) {
+    try {
+      res.json(await cb)
+    } catch(err) {
+      next(err)
+    }
+  }
 
   // insert linked data if it is exists in linked table, store it in delayed otherwise
   async function processLinked (name, id1, linkedData) {
     const prefix = new RegExp(`^([^\/]+)\/([^\/]+)\/([^\/]+)$`);
 
-    for(let link of Object.keys(models.dD)) {
+    for(let link of Object.keys(models.delayedData)) {
       const found = link.match(prefix);
       if(!found) continue;
       const [, table1, id1, table2] = found;
 
-      let data2 = models.dD[link];
+      let data2 = models.delayedData[link];
 
       let result1 = (await models.get({name: table1, where: {id:id1}})).shift();
       for(let i = 0; i < data2.length; i++) {
@@ -92,11 +101,11 @@ module.exports = models => {
         }
       }
 
-      models.dD[link] = data2.filter( item => item && Object.keys(item).length);
-      if(!models.dD[link].length) delete models.dD[link];
+      models.delayedData[link] = data2.filter( item => item && Object.keys(item).length);
+      if(!models.delayedData[link].length) delete models.delayedData[link];
     }
 
-    if(Object.keys(models.dD).length) console.log('delayed linked data:', models.dD);
+    if(Object.keys(models.delayedData).length) console.log('delayed linked data:', models.delayedData);
   };
 
 }

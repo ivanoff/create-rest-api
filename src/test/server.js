@@ -25,7 +25,7 @@ describe('Server check', () => {
 
   describe('One model', () => {
     before(async () => {
-      api = new Api({...config, token: undefined});
+      api = new Api({...config, token: undefined, server: { ...config.server, standalone: false }});
       await api.model('books', { name: 'string' });
       await api.start();
       r = () => request(url);
@@ -53,11 +53,12 @@ describe('Server check', () => {
     let r2;
     let api2;
     const config2 = JSON.parse(JSON.stringify(config));
+    config2.server.standalone = false;
     const port2 = ++config2.server.port;
     const url2 = `http://${host}:${port2}`;
 
     before(async () => {
-      api = new Api({...config, token: undefined});
+      api = new Api({...config, token: undefined, server: { ...config.server, standalone: false }});
       api2 = new Api({...config2, token: undefined});
       api.model('books', { name: 'string' });
       api2.model('movies', { name: 'string' });

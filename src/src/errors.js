@@ -1,20 +1,36 @@
 module.exports = {
+
+  MODEL_HAS_NO_NAME: "Model has no name. Please, define any name for model",
+
   NO_TOKEN: {
-    code: 1,
+    status: 401,
+    developerMessage: 'You need to login or use token',
   },
-  NO_NAME: {
-    code: 1,
-  },
+
   ACCESS_DENIED: {
     status: 401,
-    name: 'ACCESS_DENIED',
     message: 'Access denied',
     developerMessage: 'additional',
   },
+
   METHOD_NOT_ALLOWED: {
     status: 405,
-    name: 'METHOD_NOT_ALLOWED',
     message: 'Method Not Allowed',
-    developerMessage: 'additional',
   },
+
+  METHOD_NOT_FOUND: {
+    status: 404,
+    message: 'Method Not Found',
+  },
+
+  USER_NOT_FOUND: {
+    status: 404,
+    message: 'User not found',
+  },
+
+  NOT_FOUND: {
+    status: 404,
+    message: 'Not Found',
+  },
+
 };

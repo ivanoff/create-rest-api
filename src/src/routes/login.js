@@ -1,11 +1,11 @@
 const ControllersLogin = require('../controllers/login');
 
 class LoginRouter {
-  constructor({ app, config, models, wrapAsync }) {
+  constructor({ router, config, models }) {
     const c = new ControllersLogin({ config, models });
-    app.get('/login', wrapAsync( c.info.bind(c) ));
-    app.post('/login', wrapAsync( c.login.bind(c) ));
-    app.patch('/login', wrapAsync( c.update.bind(c) ));
+    router.get('/login', c.info.bind(c));
+    router.post('/login', c.login.bind(c));
+    router.patch('/login', c.update.bind(c));
   }
 }
 

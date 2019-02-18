@@ -1,20 +1,5 @@
-const Koa = require('koa');
-const Router = require('koa-router');
+const Express = require('express');
 const jwt = require('jsonwebtoken');
-
-/*
-app.use(async (ctx, next) => {
-  ctx.body = 'Hello World';
-  next();
-  console.log(ctx.params);
-});
-
-router.get('/:id', (ctx, next) => {
-  console.log(ctx.params);
-});
-
-app.use(router.routes());
-*/
 
 const LoginRoute = require('./routes/login');
 const logsRoute = require('./routes/logs');
@@ -27,48 +12,38 @@ class Api extends Base {
     super(config);
     this.links = [];
 
-    this.app = new Koa();
-    this.router = new Router();
+    this.app = new Express();
 
-this.app.use(async (ctx, next) => {  
-    try {
-        await next();
-    }
-    catch (err) {
-        ctx.status = 500;
-        ctx.message = err.message || "Sorry, an error has occurred.";
-    }
-});
-
-//    this.app.use(Express.json());
-//    this.app.use(Express.urlencoded({ extended: true }));
+    this.app.use(Express.json());
+    this.app.use(Express.urlencoded({ extended: true }));
     this.app.use(logsRoute(this.log));
 
-    this.app.use((ctx, next) => {
-//      const token = ctx.request.headers['x-access-token'] || ctx.request.body._token || ctx.request.query._token;
-      const token = ctx.request.headers['x-access-token'] || ctx.request.query._token;
+    this.wrapAsync = fn => (req, res, next) => fn(req, res, next).catch(next);
+
+    this.app.use((req, res, next) => {
+      const token = req.headers['x-access-token'] || req.body._token || req.query._token;
       const { secret } = this.config.token || {};
 
       if (token && secret) {
-        delete ctx.request.body._token;
-        delete ctx.request.query._token;
+        delete req.body._token;
+        delete req.query._token;
 
         try {
-          ctx._currentUser = jwt.verify(token, secret);
+          req._currentUser = jwt.verify(token, secret);
         } catch (err) {
           return next(err.name === 'TokenExpiredError'? { TOKEN_EXPIRED: err } : { BAD_TOKEN: err });
         }
 
         const { login, group } = req.params;
-        if (login && login !== ctx.request._currentUser.login)
+        if (login && login !== req._currentUser.login)
           return next({ ACCESS_DENIED: 'Login owner error' });
-        if (group && group !== ctx.request._currentUser.group)
+        if (group && group !== req._currentUser.group)
           return next({ ACCESS_DENIED: 'Group owner error' });
       }
 
       next();
     });
-/*
+
     this.override = {
       get: (...args) => this._override('get', ...args),
       post: (...args) => this._override('post', ...args),
@@ -76,7 +51,7 @@ this.app.use(async (ctx, next) => {
       put: (...args) => this._override('put', ...args),
       delete: (...args) => this._override('delete', ...args),
     }
-*/
+
     if(this.config.token) {
       new LoginRoute(this);
     } else {
@@ -105,7 +80,7 @@ this.app.use(async (ctx, next) => {
     if(!this.config.token) openMethods = '*';
 
     await Promise.all([
-      this.routes(name, this.router, this.controllers, openMethods, denyMethods, links),
+      this.routes(name, this.app, this.controllers, openMethods, denyMethods, links, this.wrapAsync),
       this.models.create(name, schema, links),
     ]);
     this.log.info(`${name} model registered`);
@@ -131,8 +106,8 @@ this.app.use(async (ctx, next) => {
 
 //console.log(JSON.stringify(this.models.delayedData, null, '  '))
 
-//    this.app.use((req, res, next) => next( !res.headersSent && { METHOD_NOT_FOUND: `Cannot ${req.method} ${req.path}` } ));
-/*
+    this.app.use((req, res, next) => next( !res.headersSent && { METHOD_NOT_FOUND: `Cannot ${req.method} ${req.path}` } ));
+
     // Error handler
     this.app.use((err, req, res, next) => {
 
@@ -163,7 +138,7 @@ this.app.use(async (ctx, next) => {
 
       next();
     });
-*/
+
     const { host, port, standalone } = this.config.server;
     return new Promise((resolve, reject) => {
       if (standalone) return resolve();

@@ -42,7 +42,7 @@ describe('Override methods', () => {
   });
 
   it('Override get and get all movies', async () => {
-    api.override.get('/movies', async (req, res) => res.json(moviesOverrided));
+    api.override.get('/movies', api.wrapAsync( (req, res) => res.json(moviesOverrided) ));
     const res = await r().get('/movies');
     expect(res.body[0].name).to.eql(moviesOverrided[0].name);
   });
@@ -63,7 +63,7 @@ describe('Override methods', () => {
   });
 
   it('Override get by id and get first overrided movie', async () => {
-    api.override.get('/movies/:id', async (req, res) => res.json(moviesOverrided[req.params.id-1]));
+    api.override.get('/movies/:id', api.wrapAsync( (req, res) => res.json(moviesOverrided[req.params.id-1]) ));
     const res = await r().get('/movies/1');
     expect(res.body.name).to.eql(moviesOverrided[0].name);
   });
@@ -74,7 +74,7 @@ describe('Override methods', () => {
   });
 
   it('Override post and add movie', async () => {
-    api.override.post('/movies', async (req, res) => res.json(moviesOverrided.push( req.body )));
+    api.override.post('/movies', api.wrapAsync( (req, res) => res.json(moviesOverrided.push( req.body )) ));
     const res = await r().post('/movies').send({ name: movieNameToAdd });
     expect(res.body).to.eql(moviesOverrided.length);
   });
@@ -85,7 +85,7 @@ describe('Override methods', () => {
   });
 
   it('Return standart get method and get all movies', async () => {
-    api.override.get('/movies', api.controllers('movies').get);
+    api.override.get('/movies', api.wrapAsync( api.controllers('movies').get ));
     const res = await r().get('/movies');
     expect(res.body[0].name).to.eql(movies[0].name);
   });
@@ -96,8 +96,8 @@ describe('Override methods', () => {
       table.string('name');
     });
 
-    api.override.get('/movies', api.controllers(tableNameToSwitch).get);
-    api.override.post('/movies', api.controllers(tableNameToSwitch).post);
+    api.override.get('/movies', api.wrapAsync( api.controllers(tableNameToSwitch).get ));
+    api.override.post('/movies', api.wrapAsync( api.controllers(tableNameToSwitch).post ));
 
     await r().post('/movies').send({ name: movieNameToAdd });
     const res = await r().get('/movies');

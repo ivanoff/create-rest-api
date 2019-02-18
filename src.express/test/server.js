@@ -3,7 +3,7 @@ const { expect, request } = require('chai');
 const config = require('./mocks/config');
 const Api = require('../src');
 
-describe.only('Server check', () => {
+describe('Server check', () => {
   let r;
   let api;
   const { host, port } = config.server;

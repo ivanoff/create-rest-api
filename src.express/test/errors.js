@@ -32,9 +32,9 @@ describe('Check errors', () => {
       }
     });
 
-    api.app.get('/error_sql', async (req, res, next) => {
+    api.app.get('/error_sql', api.wrapAsync( async (req, res, next) => {
       await api.models.db('errorNamedTable').select('*');
-    });
+    }) );
 
     await api.start();
     r = () => request(api.app);

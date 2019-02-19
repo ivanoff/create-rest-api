@@ -164,6 +164,9 @@ this.app.use(async (ctx, next) => {
       next();
     });
 */
+
+    this.app.use(this.router.routes());
+
     const { host, port, standalone } = this.config.server;
     return new Promise((resolve, reject) => {
       if (standalone) return resolve();

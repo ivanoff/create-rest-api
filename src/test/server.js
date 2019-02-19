@@ -35,6 +35,7 @@ describe.only('Server check', () => {
 
     it('get model returns 200', async () => {
       const res = await r().get('/books');
+console.log(res)
       expect(res).to.have.status(200);
     });
 

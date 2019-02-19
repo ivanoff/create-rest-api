@@ -2,24 +2,29 @@
 module.exports = models => {
 
   return (name, link) => ({
-    get: async (req, res, next) => {
-      const { id } = req.params;
+    get: async (ctx) => {
+console.log(ctx)
+      const { id } = ctx.params;
       let where = id ? { id } : {};
 
-      const search = Object.keys(req.query).filter(key => !key.match(/^_/));
+      const search = Object.keys(ctx.request.query).filter(key => !key.match(/^_/));
 
       for (const key of search) {
-        where[key] = req.query[key];
+        where[key] = ctx.request.query[key];
       }
 
+console.log(data)
+ctx.body = 'aaaaaaaaaaaaaaa';
+return;
       const data = await models.get({name, link, where});
 
-      if(id && !link && !data[0]) throw 'NOT_FOUND';
+//      if(id && !link && !data[0]) throw 'NOT_FOUND';
+console.log({name, link, where, data})
 
       if(id && !link) {
-        res.json(data[0]);
+        ctx.body = data[0];
       } else {
-        res.json(data);
+        ctx.body = data;
       }
     },
 

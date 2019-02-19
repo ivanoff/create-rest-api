@@ -49,7 +49,7 @@ class Models {
       r = this.db(name).select('*');
     }
     r.where(where);
-    return r;
+    return await r;
   }
 
   async insert(name, body) {

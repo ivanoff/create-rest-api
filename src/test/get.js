@@ -1,9 +1,10 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe.skip('Get parameters', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [
@@ -16,7 +17,8 @@ describe.skip('Get parameters', () => {
   before(async () => {
     api = new Api({...config, token: undefined});
     await api.model('movies', { name: 'string', rates: 'integer' });
-    r = () => request(api.app);
+    await api.start();
+    r = () => request(url);
     await api.start();
   });
 

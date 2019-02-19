@@ -1,9 +1,10 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe('Override methods', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [
@@ -21,7 +22,7 @@ describe('Override methods', () => {
     api = new Api({...config, token: undefined});
     await api.model('movies', { name: 'string' });
     await api.start();
-    r = () => request(api.app);
+    r = () => request(url);
   });
 
   after(() => api.destroy());
@@ -42,7 +43,7 @@ describe('Override methods', () => {
   });
 
   it('Override get and get all movies', async () => {
-    api.override.get('/movies', async (req, res) => res.json(moviesOverrided));
+    api.override.get('/movies', async ctx => ctx.body = moviesOverrided);
     const res = await r().get('/movies');
     expect(res.body[0].name).to.eql(moviesOverrided[0].name);
   });
@@ -63,7 +64,7 @@ describe('Override methods', () => {
   });
 
   it('Override get by id and get first overrided movie', async () => {
-    api.override.get('/movies/:id', async (req, res) => res.json(moviesOverrided[req.params.id-1]));
+    api.override.get('/movies/:id', async ctx => ctx.body = moviesOverrided[ctx.params.id-1]);
     const res = await r().get('/movies/1');
     expect(res.body.name).to.eql(moviesOverrided[0].name);
   });
@@ -74,7 +75,7 @@ describe('Override methods', () => {
   });
 
   it('Override post and add movie', async () => {
-    api.override.post('/movies', async (req, res) => res.json(moviesOverrided.push( req.body )));
+    api.override.post('/movies', async ctx => ctx.body = moviesOverrided.push( ctx.request.body ));
     const res = await r().post('/movies').send({ name: movieNameToAdd });
     expect(res.body).to.eql(moviesOverrided.length);
   });

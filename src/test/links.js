@@ -1,9 +1,10 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe('Linked models', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [
@@ -30,7 +31,7 @@ describe('Linked models', () => {
     await api.model('actors', { name }, { links: 'movies'});
     await api.model('directors', { name }, { links: 'movies'});
     await api.start();
-    r = () => request(api.app);
+    r = () => request(url);
   });
 
   after(() => api.destroy());

@@ -1,9 +1,10 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe('Login', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
   let _token;
@@ -20,7 +21,7 @@ describe('Login', () => {
     await api.user(credentials);
     await api.model('movies', { name: 'string' });
     await api.start();
-    r = () => request(api.app);
+    r = () => request(url);
   });
 
   after(() => api.destroy());
@@ -117,6 +118,7 @@ describe('Login', () => {
 
       it('post with token in body', async () => {
         const res = await r().post('/movies').send({...movies[0], _token});
+
         expect(res).to.have.status(201);
       });
 
@@ -131,45 +133,40 @@ describe('Login', () => {
       });
     });
 
-    describe.skip('Wrong owner and group token usage', () => {
+    describe('Wrong owner and group token usage', () => {
       it('has token', async () => {
         const res = await r().post('/login').send(credentials);
         expect(res.body).to.have.property('token');
         _token = res.body.token;
       });
 
-      it('post with wrong owner has 403 status', async () => {
+      it('post with wrong owner has 401 status', async () => {
         const res = await r().post('/my/WRONG/movies').set('X-Access-Token', _token).send(movies[0]);
         expect(res).to.have.status(401);
       });
 
-      it('post with wrong owner has 403 status', async () => {
+      it('post with wrong group has 401 status', async () => {
         const res = await r().post('/our/WRONG/movies').set('X-Access-Token', _token).send(movies[0]);
         expect(res).to.have.status(401);
       });
 
-      it('get with bad token has 403 status', async () => {
+      it('get with wrong owner 401 status', async () => {
         const res = await r().get('/my/WRONG/movies').set('X-Access-Token', _token);
         expect(res).to.have.status(401);
       });
 
-      it('get with bad token has 403 status', async () => {
+      it('get by id with wrong owner has 401 status', async () => {
         const res = await r().get('/my/WRONG/movies/1').set('X-Access-Token', _token);
         expect(res).to.have.status(401);
       });
 
-      it('get with bad token has 403 status', async () => {
-        const res = await r().get('/movies').set('X-Access-Token', _token);
-        expect(res).to.have.status(401);
-      });
-
-      it('get with bad token has 403 status', async () => {
-        const res = await r().get('/movies/1').set('X-Access-Token', _token);
-        expect(res).to.have.status(401);
-      });
-
-      it('get with bad token has 403 status', async () => {
+      it('get with bad token has 401 status', async () => {
         const res = await r().get('/our/WRONG/movies').set('X-Access-Token', _token);
+        expect(res).to.have.status(401);
+      });
+
+      it('get by id with bad token has 401 status', async () => {
+        const res = await r().get('/our/WRONG/movies/1').set('X-Access-Token', _token);
         expect(res).to.have.status(401);
       });
     });
@@ -199,14 +196,14 @@ describe('Login', () => {
     });
 
     describe('Expired Token usage', () => {
-      let api;
 
       before(async () => {
+        await api.destroy();
         api = new Api({...config, token: { secret: 'TEST', expire: -1 }});
         await api.user(credentials);
         await api.model('movies', { name: 'string' });
         await api.start();
-        r = () => request(api.app);
+        r = () => request(url);
       });
 
       after(() => api.destroy());

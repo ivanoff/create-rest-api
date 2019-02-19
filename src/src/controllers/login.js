@@ -7,39 +7,31 @@ class LoginController {
     if (!config.token.secret) throw ('NO_TOKEN_SECRET');
     this.secret = config.token.secret;
     this.expire = config.token.expire;
-
-    this.aa = async (cb, res, next) => {
-      try {
-        res.json(await cb)
-      } catch(err) {
-        next(err)
-      }
-    }
   }
 
-  async login(req, res) {
-    const { login, password, refresh } = req.body;
+  async login(ctx) {
+    const { login, password, refresh } = ctx.request.body;
     const user = await this.models.login.search({ login, password, refresh });
-    res.json(await this._updateUserData(user));
+    ctx.body = await this._updateUserData(user)
   }
 
-  async login2(req, ...args) {
-    const { login, password, refresh } = req.body;
+  async login2(ctx) {
+    const { login, password, refresh } = ctx.request.body;
     const user = await this.models.login.search({ login, password, refresh });
-    this.aa(this._updateUserData(user), ...args);
+    ctx.body = await this._updateUserData(user)
   }
 
-  async update(req, ...args) {
-    const user = await this.models.login.search({ refresh: this._decoded(req).refresh });
-    this.aa(this._updateUserData(user), ...args);
+  async update(ctx) {
+    const user = await this.models.login.search({ refresh: this._decoded(ctx.request).refresh });
+    ctx.body = await this._updateUserData(user)
   }
 
-  async info(req, ...args) {
-    this.aa(this._decoded(req), ...args);
+  async info(ctx) {
+    ctx.body = await this._decoded(ctx.request);
   }
 
-  _decoded(req) {
-    const token = req.headers['x-access-token'] || req.body._token || req.query._token;
+  _decoded(ctx) {
+    const token = ctx.request.headers['x-access-token'] || ctx.request.body._token || ctx.request.query._token;
     if (!token) throw 'NO_TOKEN';
     return jwt.decode(token, this.secret);
   }

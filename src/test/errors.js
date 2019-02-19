@@ -1,9 +1,10 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe('Check errors', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
 
@@ -17,8 +18,8 @@ describe('Check errors', () => {
     // Create self-defined error
     api.error.SELF_DEFINED = { status: 418, teapod: true };
 
-    api.app.post('/error', (req, res, next) => {
-      switch( req.body[0] ) {
+    api.router.post('/error', async ctx => {
+      switch( ctx.request.body[0] ) {
         case 'plain_text': throw 'Just plain text';
         case 'not_found': throw 'NOT_FOUND';
 
@@ -32,12 +33,12 @@ describe('Check errors', () => {
       }
     });
 
-    api.app.get('/error_sql', async (req, res, next) => {
+    api.router.get('/error_sql', async ctx => {
       await api.models.db('errorNamedTable').select('*');
     });
 
     await api.start();
-    r = () => request(api.app);
+    r = () => request(url);
   });
 
   after(() => api.destroy());

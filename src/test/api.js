@@ -1,11 +1,13 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe('main API', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
+
   const movies = [
     { name: "The World's End", rates: 7 },
     { name: 'Baby driver' },
@@ -16,8 +18,8 @@ describe('main API', () => {
   before(async () => {
     api = new Api({...config, token: undefined});
     await api.model('movies', { name: 'string', rates: 'integer' });
-    r = () => request(api.app);
     await api.start();
+    r = () => request(url);
   });
 
   after(() => api.destroy());

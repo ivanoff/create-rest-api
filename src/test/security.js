@@ -1,9 +1,10 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
 describe('Security', () => {
+  const { host, port } = config.server;
+  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [{ name: 'Hot Fuzz' }];
@@ -17,7 +18,8 @@ describe('Security', () => {
     await api.model('comments', { name: 'string', comment: 'integer' }, { openMethods: ['GET', 'POST'], denyMethods: ['PUT', 'DELETE'] });
     await api.model('directors', { name: 'string' }, { openMethods: 'GET', denyMethods: 'DELETE' });
     await api.model('actors', { name: 'string' }, { openMethods: '*' });
-    r = () => request(api.app);
+    await api.start();
+    r = () => request(url);
   });
 
   after(() => api.destroy());

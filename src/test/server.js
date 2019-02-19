@@ -1,9 +1,8 @@
 const { expect, request } = require('chai');
-
 const config = require('./mocks/config');
 const Api = require('../src');
 
-describe.only('Server check', () => {
+describe('Server check', () => {
   let r;
   let api;
   const { host, port } = config.server;
@@ -25,7 +24,7 @@ describe.only('Server check', () => {
 
   describe('One model', () => {
     before(async () => {
-      api = new Api({...config, token: undefined, server: { ...config.server, standalone: false }});
+      api = new Api({...config, token: undefined});
       await api.model('books', { name: 'string' });
       await api.start();
       r = () => request(url);
@@ -35,7 +34,6 @@ describe.only('Server check', () => {
 
     it('get model returns 200', async () => {
       const res = await r().get('/books');
-console.log(res)
       expect(res).to.have.status(200);
     });
 
@@ -54,12 +52,11 @@ console.log(res)
     let r2;
     let api2;
     const config2 = JSON.parse(JSON.stringify(config));
-    config2.server.standalone = false;
     const port2 = ++config2.server.port;
     const url2 = `http://${host}:${port2}`;
 
     before(async () => {
-      api = new Api({...config, token: undefined, server: { ...config.server, standalone: false }});
+      api = new Api({...config, token: undefined});
       api2 = new Api({...config2, token: undefined});
       api.model('books', { name: 'string' });
       api2.model('movies', { name: 'string' });

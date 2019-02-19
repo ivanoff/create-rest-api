@@ -3,7 +3,6 @@ module.exports = {
   server: {
     host: 'localhost',
     port: 18877,
-    standalone: true,
   },
 
   db: {

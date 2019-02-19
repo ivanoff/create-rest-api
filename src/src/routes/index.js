@@ -1,12 +1,10 @@
-const security = require('./security');
-
-module.exports = (name, app, controller, openMethods, denyMethods, links) => {
+module.exports = (name, app, controller, links, security) => {
   const c = controller(name);
 
   const path = `/${name}`;
   const pathId = `${path}/:id`;
-  app.use(path, security(openMethods, denyMethods));
-  app.use(pathId, security(openMethods, denyMethods));
+  app.use(path, security);
+  app.use(pathId, security);
 
   app.get(path, c.get);
   app.post(path, c.post);
@@ -22,10 +20,10 @@ module.exports = (name, app, controller, openMethods, denyMethods, links) => {
   const ourPath = `/our/:group${path}`;
   const ourPathId = `/our/:group${pathId}`;
 
-//  app.use(myPath, security(openMethods, denyMethods));
-//  app.use(myPathId, security(openMethods, denyMethods));
-//  app.use(ourPath, security(openMethods, denyMethods));
-//  app.use(ourPathId, security(openMethods, denyMethods));
+  app.use(myPath, security);
+  app.use(myPathId, security);
+  app.use(ourPath, security);
+  app.use(ourPathId, security);
 
   app.get(myPath, c.get);
   app.post(myPath, c.post);
@@ -51,8 +49,8 @@ module.exports = (name, app, controller, openMethods, denyMethods, links) => {
       const c2 = controller(link, name);
       const pathIdlinked1 = `/${name}/:id/${link}`;
       const pathIdlinked2 = `/${link}/:id/${name}`;
-      app.use(pathIdlinked1, security(openMethods, denyMethods));
-      app.use(pathIdlinked2, security(openMethods, denyMethods));
+      app.use(pathIdlinked1, security);
+      app.use(pathIdlinked2, security);
 
       app.get(pathIdlinked1, c1.get);
       app.get(pathIdlinked2, c2.get);

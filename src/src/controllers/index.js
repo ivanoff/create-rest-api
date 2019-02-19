@@ -2,8 +2,7 @@
 module.exports = models => {
 
   return (name, link) => ({
-    get: async (ctx) => {
-console.log(ctx)
+    get: async ctx => {
       const { id } = ctx.params;
       let where = id ? { id } : {};
 
@@ -13,27 +12,19 @@ console.log(ctx)
         where[key] = ctx.request.query[key];
       }
 
-console.log(data)
-ctx.body = 'aaaaaaaaaaaaaaa';
-return;
       const data = await models.get({name, link, where});
 
-//      if(id && !link && !data[0]) throw 'NOT_FOUND';
-console.log({name, link, where, data})
+      if(id && !link && !data[0]) throw 'NOT_FOUND';
 
-      if(id && !link) {
-        ctx.body = data[0];
-      } else {
-        ctx.body = data;
-      }
+      ctx.body = id && !link ? data[0] : data;
     },
 
-    post: async (req, res, next) => {
-      let { body } = req;
+    post: async ctx => {
+      let { body } = ctx.request;
       let currentSchema = models.schema[name] || {};
 
       if(link) {
-        const { id } = req.params;
+        const { id } = ctx.params;
         body[name] = body[name]? [].concat(body[name], id) : {id};
       }
       let linkedData = {};
@@ -56,34 +47,25 @@ console.log({name, link, where, data})
 
       await processLinked();
 
-      res.location(`/${realName}/${result1.id}`);
-      res.status(201).json(result1);
+      ctx.status = 201;
+      ctx.location = `/${realName}/${result1.id}`;
+      ctx.body = result1;
     },
 
-    replace: async (req, ...args) => {
-      const { id } = req.params;
-      aa(await models.replace(name, id, req.body),  ...args);
+    replace: async ctx => {
+      await models.replace(name, ctx.params.id, ctx.request.body);
+      ctx.body = ctx.params;
     },
 
-    update: async (req, ...args) => {
-      const { id } = req.params;
-      aa(models.update(name, id, req.body), ...args);
+    update: async ctx => {
+      ctx.body = await models.update(name, ctx.params.id, ctx.request.body);
     },
 
-    delete: async (req, ...args) => {
-      const { id } = req.params;
-      aa(models.delete(name, id), ...args);
+    delete: async ctx => {
+      ctx.body = await models.delete(name, ctx.params.id);
     },
 
   });
-
-  async function aa(cb, res, next) {
-    try {
-      res.json(await cb)
-    } catch(err) {
-      next(err)
-    }
-  }
 
   // insert linked data if it is exists in linked table, store it in delayed otherwise
   async function processLinked (name, id1, linkedData) {

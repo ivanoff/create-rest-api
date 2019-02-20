@@ -28,8 +28,8 @@ class Base {
     }
   }
 
-  destroy() {
-    this.db.destroy();
+  async destroy() {
+    await this.db.destroy();
   }
 
   initLog() {

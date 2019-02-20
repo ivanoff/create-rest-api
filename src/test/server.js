@@ -1,20 +1,20 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('Server check', () => {
+  let { config } = global;
+  let { host, port } = config.server;
   let r;
   let api;
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
+  let url;
 
   describe('No models', () => {
     before(async () => {
-      api = new Api(config);
+      url = `http://${host}:${port}`;
+      api = new global.Api({...config, server: {...config.server, port, standalone: false} });
       await api.start();
     });
 
-    after(() => api.destroy());
+    after(async () => await api.destroy());
 
     it('Check connection', async () => {
       request(url);
@@ -24,13 +24,15 @@ describe('Server check', () => {
 
   describe('One model', () => {
     before(async () => {
-      api = new Api({...config, token: undefined});
+      port++;
+      url = `http://${host}:${port}`;
+      api = new global.Api({...config, token: undefined, server: {...config.server, port, standalone: false} });
       await api.model('books', { name: 'string' });
       await api.start();
       r = () => request(url);
     });
 
-    after(() => api.destroy());
+    after(async () => await api.destroy());
 
     it('get model returns 200', async () => {
       const res = await r().get('/books');
@@ -51,24 +53,27 @@ describe('Server check', () => {
   describe('Two servers', () => {
     let r2;
     let api2;
-    const config2 = JSON.parse(JSON.stringify(config));
-    const port2 = ++config2.server.port;
-    const url2 = `http://${host}:${port2}`;
 
     before(async () => {
-      api = new Api({...config, token: undefined});
-      api2 = new Api({...config2, token: undefined});
-      api.model('books', { name: 'string' });
-      api2.model('movies', { name: 'string' });
+      port++;
+      url = `http://${host}:${port}`;
+      let server = {...config.server, port, standalone: false};
+      api = new global.Api({...config, server, token: undefined});
+      await api.model('books', { name: 'string' });
       await api.start();
-      await api2.start();
       r = () => request(url);
+
+      port++;
+      const url2 = `http://${host}:${port}`;
+      api2 = new global.Api({...config, server: {...server, port}, token: undefined});
+      await api2.model('movies', { name: 'string' });
+      await api2.start();
       r2 = () => request(url2);
     });
 
-    after(() => {
-      api.destroy();
-      api2.destroy();
+    after(async () => {
+      await api.destroy();
+      await api2.destroy();
     });
 
     it('get first server model returns 200', async () => {

@@ -1,10 +1,6 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('Override methods', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [
@@ -19,13 +15,13 @@ describe('Override methods', () => {
   const tableNameToSwitch = 'my_movies_table';
 
   before(async () => {
-    api = new Api({...config, token: undefined});
+    api = new global.Api(global.configNoToken);
     await api.model('movies', { name: 'string' });
     await api.start();
-    r = () => request(url);
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
   it('Standart post', async () => {
     const res = await r().post('/movies').send(movies[0]);

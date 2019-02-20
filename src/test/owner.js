@@ -1,10 +1,6 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('Login', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
   let _token;
@@ -17,14 +13,14 @@ describe('Login', () => {
   const credentials = { login: 'test1', password: 'test2' };
 
   before(async () => {
-    api = new Api(config);
+    api = new global.Api(global.config);
     await api.user(credentials);
     await api.model('movies', { name: 'string' });
     await api.start();
-    r = () => request(url);
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
     describe('Wrong owner and group token usage', () => {
       it('has token', async () => {

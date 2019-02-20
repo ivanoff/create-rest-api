@@ -1,10 +1,6 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('Security', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [{ name: 'Hot Fuzz' }];
@@ -13,16 +9,16 @@ describe('Security', () => {
   const actors = [{ name: 'Simon Pegg' }];
 
   before(async () => {
-    api = new Api(config);
+    api = new global.Api(global.config);
     await api.model('movies', { name: 'string' });
     await api.model('comments', { name: 'string', comment: 'integer' }, { openMethods: ['GET', 'POST'], denyMethods: ['PUT', 'DELETE'] });
     await api.model('directors', { name: 'string' }, { openMethods: 'GET', denyMethods: 'DELETE' });
     await api.model('actors', { name: 'string' }, { openMethods: '*' });
     await api.start();
-    r = () => request(url);
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
   describe('Check tocken access', () => {
     it('get movies returns 401', async () => {

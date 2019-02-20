@@ -1,10 +1,6 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('main API', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
 
@@ -16,13 +12,13 @@ describe('main API', () => {
   ];
 
   before(async () => {
-    api = new Api({...config, token: undefined});
+    api = new global.Api(global.configNoToken);
     await api.model('movies', { name: 'string', rates: 'integer' });
     await api.start();
-    r = () => request(url);
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
   it('Check connection', async () => {
     request(api);

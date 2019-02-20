@@ -1,10 +1,6 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe.skip('Get parameters', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
   const movies = [
@@ -15,14 +11,13 @@ describe.skip('Get parameters', () => {
   ];
 
   before(async () => {
-    api = new Api({...config, token: undefined});
+    api = new global.Api(global.configNoToken);
     await api.model('movies', { name: 'string', rates: 'integer' });
     await api.start();
-    r = () => request(url);
-    await api.start();
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
   describe('Fill the data', () => {
     it('Add all movies and check the last one', async () => {

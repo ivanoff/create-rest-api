@@ -1,15 +1,11 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('Check errors', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
 
   before(async () => {
-    api = new Api(config);
+    api = new global.Api(global.config);
     await api.user({login: 1, password: 1});
 
     // Create self-defined proxied error
@@ -38,10 +34,10 @@ describe('Check errors', () => {
     });
 
     await api.start();
-    r = () => request(url);
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
   it('Empty model name', async () => {
     try {

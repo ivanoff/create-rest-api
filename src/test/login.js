@@ -1,10 +1,6 @@
 const { expect, request } = require('chai');
-const config = require('./mocks/config');
-const Api = require('../src');
 
 describe('Login', () => {
-  const { host, port } = config.server;
-  const url = `http://${host}:${port}`;
   let api;
   let r;
   let _token;
@@ -17,14 +13,14 @@ describe('Login', () => {
   const credentials = { login: 'test1', password: 'test2' };
 
   before(async () => {
-    api = new Api(config);
+    api = new global.Api(global.config);
     await api.user(credentials);
     await api.model('movies', { name: 'string' });
     await api.start();
-    r = () => request(url);
+    r = () => request(api.app.callback());
   });
 
-  after(() => api.destroy());
+  after(async () => await api.destroy());
 
   describe('Check login access', () => {
 
@@ -191,42 +187,6 @@ describe('Login', () => {
       it('get with bad token has name BAD_TOKEN', async () => {
         const res = await r().get('/movies').set('X-Access-Token', _token);
         expect(res.body.name).to.eql('BAD_TOKEN');
-      });
-
-    });
-
-    describe('Expired Token usage', () => {
-
-      before(async () => {
-        await api.destroy();
-        api = new Api({...config, token: { secret: 'TEST', expire: -1 }});
-        await api.user(credentials);
-        await api.model('movies', { name: 'string' });
-        await api.start();
-        r = () => request(url);
-      });
-
-      after(() => api.destroy());
-
-      it('has token', async () => {
-        const res = await r().post('/login').send(credentials);
-        expect(res.body).to.have.property('token');
-        _token = res.body.token;
-      });
-
-      it('post with expired token return 403', async () => {
-        const res = await r().post('/movies').set('X-Access-Token', _token).send(movies[0]);
-        expect(res).to.have.status(403);
-      });
-
-      it('get with expired token return 403', async () => {
-        const res = await r().get('/movies').set('X-Access-Token', _token);
-        expect(res).to.have.status(403);
-      });
-
-      it('get with bad token has name TOKEN_EXPIRED', async () => {
-        const res = await r().get('/movies').set('X-Access-Token', _token);
-        expect(res.body.name).to.eql('TOKEN_EXPIRED');
       });
 
     });

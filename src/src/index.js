@@ -29,22 +29,28 @@ class Api extends Base {
     }
   }
 
-  destroy() {
-    this.stop();
-    super.destroy();
+  async destroy() {
+    await this.stop();
+    await super.destroy();
   }
 
   async start() {
     this.app.use(this.router.routes());
 
-    const { host, port } = this.config.server;
+    const { host, port, standalone } = this.config.server;
+
+    if (standalone) {
+      this.log.info(`standalone server started`);
+      return;
+    }
+
     this.server = await this.app.listen(port, host);
     this.log.info(`server started on ${host || '*'}:${port}`);
   }
 
-  stop() {
+  async stop() {
     this.log.info('closing...');
-    if (this.server) this.server.close();
+    if (this.server) await this.server.close();
   }
 
   async model(name, schema, opt = {}) {

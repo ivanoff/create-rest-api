@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 class LoginController {
   constructor({ config, models }) {
     this.models = models;
-    if (!config.token.secret) throw ('NO_TOKEN_SECRET');
+    if (!config.token.secret) throw 'NO_TOKEN_SECRET';
     this.secret = config.token.secret;
     this.expire = config.token.expire;
   }
@@ -12,31 +12,26 @@ class LoginController {
   async login(ctx) {
     const { login, password, refresh } = ctx.request.body;
     const user = await this.models.login.search({ login, password, refresh });
-    ctx.body = await this._updateUserData(user)
-  }
-
-  async login2(ctx) {
-    const { login, password, refresh } = ctx.request.body;
-    const user = await this.models.login.search({ login, password, refresh });
-    ctx.body = await this._updateUserData(user)
+    ctx.body = await this.updateUserData(user);
   }
 
   async update(ctx) {
-    const user = await this.models.login.search({ refresh: this._decoded(ctx.request).refresh });
-    ctx.body = await this._updateUserData(user)
+    const { refresh } = ctx.request.body;
+    const user = await this.models.login.search({ refresh });
+    ctx.body = await this.updateUserData(user);
   }
 
   async info(ctx) {
-    ctx.body = await this._decoded(ctx.request);
+    ctx.body = await this.decoded(ctx.request);
   }
 
-  _decoded(ctx) {
-    const token = ctx.request.headers['x-access-token'] || ctx.request.body._token || ctx.request.query._token;
+  decoded({ headers, query }) {
+    const token = headers['x-access-token'] || query.token;
     if (!token) throw 'NO_TOKEN';
     return jwt.decode(token, this.secret);
   }
 
-  async _updateUserData(user) {
+  async updateUserData(user) {
     if (!user) throw 'USER_NOT_FOUND';
 
     const refresh = uuid.v4();

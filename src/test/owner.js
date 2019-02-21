@@ -3,8 +3,7 @@ const { expect, request } = require('chai');
 describe('Login', () => {
   let api;
   let r;
-  let _token;
-  let refresh;
+  let token;
   const movies = [
     { name: "Last Night In Soho" },
     { name: "Shadows" },
@@ -26,7 +25,7 @@ describe('Login', () => {
       it('has token', async () => {
         const res = await r().post('/login').send(credentials);
         expect(res.body).to.have.property('token');
-        _token = res.body.token;
+        token = res.body.token;
       });
 
       it('get with bad token has 403 status', async () => {
@@ -35,13 +34,12 @@ describe('Login', () => {
       });
 
       it('post with wrong owner has 403 status', async () => {
-        const res = await r().post('/my/WRONG/movies').set('X-Access-Token', _token).send(movies[0]);
-//console.log(res)
+        const res = await r().post('/my/WRONG/movies').set('X-Access-Token', token).send(movies[0]);
         expect(res).to.have.status(401);
       });
 
       it('get with bad token has 403 status', async () => {
-        const res = await r().get('/my/WRONG/movies').set('X-Access-Token', _token);
+        const res = await r().get('/my/WRONG/movies').set('X-Access-Token', token);
         expect(res).to.have.status(401);
       });
 

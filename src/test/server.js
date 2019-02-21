@@ -10,7 +10,7 @@ describe('Server check', () => {
   describe('No models', () => {
     before(async () => {
       url = `http://${host}:${port}`;
-      api = new global.Api({...config, server: {...config.server, port, standalone: false} });
+      api = new global.Api({...config, server: {...config.server, port, host:undefined, standalone: false} });
       await api.start();
     });
 

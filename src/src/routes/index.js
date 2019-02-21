@@ -3,8 +3,17 @@ module.exports = (name, app, controller, links, security) => {
 
   const path = `/${name}`;
   const pathId = `${path}/:id`;
+  const myPath = `/my/:login${path}`;
+  const myPathId = `/my/:login${pathId}`;
+  const ourPath = `/our/:group${path}`;
+  const ourPathId = `/our/:group${pathId}`;
+
   app.use(path, security);
   app.use(pathId, security);
+  app.use(myPath, security);
+  app.use(myPathId, security);
+  app.use(ourPath, security);
+  app.use(ourPathId, security);
 
   app.get(path, c.get);
   app.post(path, c.post);
@@ -14,16 +23,6 @@ module.exports = (name, app, controller, links, security) => {
   app.patch(pathId, c.update);
   app.put(pathId, c.replace);
   app.delete(pathId, c.delete);
-
-  const myPath = `/my/:login${path}`;
-  const myPathId = `/my/:login${pathId}`;
-  const ourPath = `/our/:group${path}`;
-  const ourPathId = `/our/:group${pathId}`;
-
-  app.use(myPath, security);
-  app.use(myPathId, security);
-  app.use(ourPath, security);
-  app.use(ourPathId, security);
 
   app.get(myPath, c.get);
   app.post(myPath, c.post);
@@ -43,8 +42,8 @@ module.exports = (name, app, controller, links, security) => {
   app.put(ourPathId, c.replace);
   app.delete(ourPathId, c.delete);
 
-  if(links) {
-    for(let link of [].concat(links)) {
+  if (links) {
+    for (const link of [].concat(links)) {
       const c1 = controller(name, link);
       const c2 = controller(link, name);
       const pathIdlinked1 = `/${name}/:id/${link}`;
@@ -58,5 +57,4 @@ module.exports = (name, app, controller, links, security) => {
       app.post(pathIdlinked2, c2.post);
     }
   }
-
 };

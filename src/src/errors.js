@@ -1,6 +1,6 @@
 module.exports = {
 
-  MODEL_HAS_NO_NAME: "Model has no name. Please, define any name for model",
+  MODEL_HAS_NO_NAME: 'Model has no name. Please, define any name for model',
 
   NO_TOKEN: {
     status: 401,
@@ -34,6 +34,11 @@ module.exports = {
 
   USER_NOT_FOUND: {
     status: 404,
+    message: 'User not found',
+  },
+
+  USER_NEED_CREDENTIALS: {
+    status: 400,
     message: 'User not found',
   },
 

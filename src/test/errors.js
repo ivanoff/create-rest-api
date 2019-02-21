@@ -17,6 +17,7 @@ describe('Check errors', () => {
     api.router.post('/error', async ctx => {
       switch( ctx.request.body[0] ) {
         case 'plain_text': throw 'Just plain text';
+        case 'plain_object': throw ['Just plain object'];
         case 'not_found': throw 'NOT_FOUND';
 
         case 'stack_plain': throw new Error ('Error text');
@@ -74,6 +75,11 @@ describe('Check errors', () => {
 
   it('test error plain_text has 520 status', async () => {
     const res = await r().post('/error').send(['plain_text']);
+    expect(res).to.have.status(520);
+  });
+
+  it('test error plain_object has 520 status', async () => {
+    const res = await r().post('/error').send(['plain_object']);
     expect(res).to.have.status(520);
   });
 

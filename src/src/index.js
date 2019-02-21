@@ -7,7 +7,6 @@ const LoginRoute = require('./routes/login');
 const Base = require('./base');
 
 class Api extends Base {
-
   constructor(config) {
     super(config);
     this.links = [];
@@ -17,13 +16,14 @@ class Api extends Base {
 
     this.app.context.config = this.config;
     this.app.context.error = this.error;
+    this.app.context.delayedData = {};
 
     this.app.use(this.errorHandler);
     this.app.use(koaBody());
     this.app.use(this.logHandler());
 
-    if(this.config.token) {
-      new LoginRoute(this);
+    if (this.config.token) {
+      this.loginRoute = new LoginRoute(this);
     } else {
       this.log.warn('No token provided. All models are available without token.');
     }
@@ -40,7 +40,7 @@ class Api extends Base {
     const { host, port, standalone } = this.config.server;
 
     if (standalone) {
-      this.log.info(`standalone server started`);
+      this.log.info('standalone server started');
       return;
     }
 
@@ -54,42 +54,26 @@ class Api extends Base {
   }
 
   async model(name, schema, opt = {}) {
-    if (!name) throw new Error( this.error.MODEL_HAS_NO_NAME );
+    if (!name) throw new Error(this.error.MODEL_HAS_NO_NAME);
 
-    let { links, openMethods, denyMethods } = opt;
-    if (links) this.links.push( {[name]: links} )
-    if(!this.config.token) openMethods = '*';
+    const { links, openMethods, denyMethods } = opt;
+    if (links) this.links.push({ [name]: links });
 
     await Promise.all([
-      this.routes(name, this.router, this.controllers, links, this.security(openMethods, denyMethods)),
+      this.routes(name, this.router, this.controllers,
+        links, this.security(!this.config.token ? '*' : openMethods, denyMethods)),
       this.models.create(name, schema, links),
     ]);
     this.log.info(`${name} model registered`);
   }
 
-  async user({login, password, md5} = {}) {
-    if(!await this.models.db.schema.hasTable(this.models.login.name)) {
+  async user({ login, password, md5 } = {}) {
+    if (!login || (!password && !md5)) throw 'USER_NEED_CREDENTIALS';
+    if (!await this.models.db.schema.hasTable(this.models.login.name)) {
       await this.models.login.init();
     }
-    await this.models.login.insert({login, password, md5})
+    await this.models.login.insert({ login, password, md5 });
   }
-
-  async links() {
-    this.log.debug('to-do...');
-  }
-
-  async openMethods(name, schema) {
-    this.log.debug('to-do...');
-    // if (!Array.isArray(schema)) schema = [schema];
-    for (let i = 0; i < schema.length; i++) {
-      this.models.openMethods(name, schema[i]);
-    }
-  }
-
-  async recreate() {
-    this.recreate = true;
-  }
-
 }
 
 module.exports = Api;

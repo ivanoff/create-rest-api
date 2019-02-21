@@ -101,4 +101,22 @@ describe('Override methods', () => {
     expect(res.body[0].name).to.eql(movieNameToAdd);
   });
 
+  it('Override patch', async () => {
+    api.override.patch('/movies/:id', async ctx => ctx.body = ['patch']);
+    const res = await r().patch('/movies/1');
+    expect(res.body[0]).to.eql('patch');
+  });
+
+  it('Override put', async () => {
+    api.override.put('/movies/:id', async ctx => ctx.body = ['put']);
+    const res = await r().put('/movies/1');
+    expect(res.body[0]).to.eql('put');
+  });
+
+  it('Override patch', async () => {
+    api.override.delete('/movies/:id', async ctx => ctx.body = ['delete']);
+    const res = await r().delete('/movies/1');
+    expect(res.body[0]).to.eql('delete');
+  });
+
 });

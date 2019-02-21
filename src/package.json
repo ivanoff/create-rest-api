@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node example.js",
     "test": "NODE_ENV=test LOG_LEVEL=error node_modules/.bin/mocha",
-    "coverage": "NODE_ENV=test LOG_LEVEL=error nyc node_modules/.bin/_mocha -- test/*.js",
+    "coverage": "NODE_ENV=test LOG_LEVEL=error nyc node_modules/.bin/_mocha --exit -- test/*.js",
     "lint": "eslint src/ --cache --ignore-pattern .gitignore",
     "fix": "eslint src/ --ignore-pattern .gitignore --fix"
   },
@@ -21,6 +21,7 @@
     "koa-body": "^4.0.8",
     "koa-router": "^7.4.0",
     "md5": "^2.2.1",
+    "uuid": "^3.3.2",
     "winston": "^3.1.0"
   },
   "devDependencies": {

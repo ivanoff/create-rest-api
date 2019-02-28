@@ -4,25 +4,26 @@ module.exports = ({ models, log }) => {
   async function processLinked(ctx) {
     const prefix = new RegExp('^([^/]+)/([^/]+)/([^/]+)$');
 
-    for (const link of Object.keys(ctx.delayedData)) {
-      const found = link.match(prefix);
-      const [, table1, id1, table2] = found;
+    await Promise.all(Object.keys(ctx.delayedData).map(async (link) => {
+      if (!ctx.delayedData[link]) return;
 
-      const data2 = ctx.delayedData[link];
+      const [, table1, id1, table2] = link.match(prefix);
 
       const result1 = (await models.get({ name: table1, where: { id: id1 } })).shift();
-      for (let i = 0; i < data2.length; i++) {
-        const result2 = (await models.get({ name: table2, where: data2[i] })).shift();
-        if (result1 && result2) {
-          await models.insert(models.getLinkedTableName(table1, table2),
-            { [table1]: result1.id, [table2]: result2.id });
-          data2[i] = undefined;
-        }
-      }
 
-      ctx.delayedData[link] = data2.filter(item => item && Object.keys(item).length);
-      if (!ctx.delayedData[link].length) delete ctx.delayedData[link];
-    }
+      const data2 = await Promise.all(ctx.delayedData[link].map(async (item) => {
+        const result2 = (await models.get({ name: table2, where: item })).shift();
+        if (!result1 || !result2) return item;
+        await models.insert(
+          models.getLinkedTableName(table1, table2),
+          { [table1]: result1.id, [table2]: result2.id },
+        );
+        return undefined;
+      }));
+
+      const result = data2.filter(item => item && Object.keys(item).length);
+      ctx.delayedData[link] = result.length && result;
+    }));
 
     if (Object.keys(ctx.delayedData).length) log.info('delayed linked data:', ctx.delayedData);
   }
@@ -52,14 +53,13 @@ module.exports = ({ models, log }) => {
         else where[key] = word;
       }
 
-      const options = {};
-      Object.keys(query)
+      const options = Object.keys(query)
         .filter(key => key.match(/^_/))
-        .map(key => options[key.substr(1)] = query[key]);
+        .reduce((obj, key) => ({ ...obj, [key.substr(1)]: query[key] }), {});
 
       // update aliases
-      for (const name of Object.keys(fieldAliases)) {
-        if (options[name]) options[fieldAliases[name]] = options[name];
+      for (const [name1, name2] of Object.entries(fieldAliases)) {
+        if (options[name1]) options[name2] = options[name1];
       }
 
       if (options.page && options.limit) options.offset = options.page * options.limit;

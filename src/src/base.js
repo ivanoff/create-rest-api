@@ -11,8 +11,8 @@ class Base {
     this.config = config;
     this.error = errors;
 
+    this.initLog();
     this.db = Knex(this.config.db);
-    this.log = this.initLog();
     this.freeAccess = {};
 
     this.models = new Models(this.db);
@@ -33,7 +33,7 @@ class Base {
   }
 
   initLog() {
-    const log = winston.createLogger({
+    this.log = winston.createLogger({
       level: process.env.LOG_LEVEL,
       format: winston.format.json(),
       transports: [
@@ -42,28 +42,27 @@ class Base {
       ],
     });
 
-    log.add(new winston.transports.Console({
+    this.log.add(new winston.transports.Console({
       format: winston.format.simple(),
     }));
-
-    return log;
   }
 
-  logHandler(id = 0) {
+  logHandler(beginId = 0) {
+    let id = beginId;
     return async (ctx, next) => {
-      const _id = ++id;
       const {
         method, url, params, query, headers, body,
       } = ctx;
 
-      this.log.debug(`${_id} [IN] ${method}, ${url}`);
-      this.log.debug(`${_id} [IN] ${JSON.stringify([
+      id++;
+      this.log.debug(`${id} [IN] ${method}, ${url}`);
+      this.log.debug(`${id} [IN] ${JSON.stringify([
         { params, query, body }, { headers },
       ])}`);
 
       await next();
 
-      this.log.debug(`${_id} [OUT] ${ctx.response}`);
+      this.log.debug(`${id} [OUT] ${ctx.response}`);
     };
   }
 
@@ -72,26 +71,28 @@ class Base {
       await next();
       if (ctx.response.message === 'Not Found') throw { METHOD_NOT_FOUND: `Cannot ${ctx.request.method} ${ctx.request.url}` };
     } catch (err) {
-      let name = err.message || err;
       let stack;
       let developerMessage;
+      let error = ctx.error[err] || err.message || err;
 
-      // Proxied error -> Error from list
-      if (ctx.error[name]) err = ctx.error[name];
-
-      // One-key-object error -> entries to name and developerMessage
-      const errKeys = Object.keys(err);
+      const errKeys = Object.keys(error);
       if (errKeys.length === 1 && ctx.error[errKeys[0]]) {
-        [name, developerMessage] = Object.entries(err)[0];
+        [[error, developerMessage]] = Object.entries(error);
       }
 
-      // Result is updated Error from list or Stack error or { error: string } object or error itselfs
-      const e = ctx.error[name] ? {
-        ...ctx.error[name], name, developerMessage, stack,
-      }
-        : err.stack ? { name: err.toString(), developerMessage: err.message, stack: err.stack }
-          : typeof name === 'string' ? { error: name }
-            : name;
+      let e = { ...error, name: err };
+
+      if (ctx.error[error]) {
+        e = {
+          ...ctx.error[error], name: error, developerMessage, stack,
+        };
+      } else if (err.stack) {
+        e = {
+          name: err.toString(), developerMessage: err.message, stack: err.stack,
+        };
+      } else if (typeof error === 'string') e = { error };
+
+      this.log.error(e);
 
       ctx.status = e.status || 520;
       ctx.body = e;
@@ -119,11 +120,10 @@ class Base {
         if (group && group !== currentUser.group) throw { ACCESS_DENIED: 'Group owner error' };
       }
 
+      const methods = [].concat(openMethods);
+      const accessGranted = !this.config.token || methods.includes('*') || methods.includes(ctx.method);
 
-      const methods = Array.isArray(openMethods) ? openMethods : [openMethods];
-      const accessGranted = openMethods && (methods.includes(ctx.method) || methods.includes('*'));
-
-      const methodsDenied = Array.isArray(denyMethods) ? denyMethods : [denyMethods];
+      const methodsDenied = [].concat(denyMethods);
       const accessDenied = !accessGranted || methodsDenied.includes(ctx.method);
 
       if (accessDenied && !currentUser) throw 'ACCESS_DENIED';

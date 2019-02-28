@@ -282,6 +282,7 @@ describe('Login', () => {
       const r2 = () => request(api2.app.callback());
       const res = await r2().post('/login').send(credentials);
       expect(res).to.have.status(200);
+      await api2.destroy();
     });
 
     it('Login route without token has error', async () => {

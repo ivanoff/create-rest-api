@@ -18,9 +18,9 @@ class Api extends Base {
     this.app.context.error = this.error;
     this.app.context.delayedData = {};
 
-    this.app.use(this.errorHandler);
-    this.app.use(koaBody());
     this.app.use(this.logHandler());
+    this.app.use(this.errorHandler.bind(this));
+    this.app.use(koaBody());
 
     if (this.config.token) {
       this.loginRoute = new LoginRoute(this);
@@ -59,9 +59,10 @@ class Api extends Base {
     const { links, openMethods, denyMethods } = opt;
     if (links) this.links.push({ [name]: links });
 
+    const security = this.security(openMethods, denyMethods);
+
     await Promise.all([
-      this.routes(name, this.router, this.controllers,
-        links, this.security(!this.config.token ? '*' : openMethods, denyMethods)),
+      this.routes(name, this.router, this.controllers, links, security),
       this.models.create(name, schema, links),
     ]);
     this.log.info(`${name} model registered`);

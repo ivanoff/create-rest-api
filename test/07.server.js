@@ -249,7 +249,7 @@ describe('App', function () {
         .end(function (err, res) {
           expect(res).to.have.status(200);
           expect(res.body).to.be.a('array');
-          expect(res.body[0]).to.have.property('name').eql('test');
+          expect(res.body[0]).to.have.property('name').eql('test3');
           done();
         });
     });

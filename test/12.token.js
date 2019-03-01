@@ -383,7 +383,7 @@ describe('Token', function () {
         .set('X-Access-Token', token)
         .end(function (err, res) {
           expect(res).to.have.status(200);
-          expect(res.body).to.have.property('name').eql('Mashed tomato');
+          expect(res.body).to.have.property('name').eql('Mashed potato');
           done();
         });
     });
@@ -394,7 +394,7 @@ describe('Token', function () {
         .set('X-Access-Token', token)
         .end(function (err, res) {
           expect(res).to.have.status(200);
-          expect(res.body[0]).to.have.property('name').eql('Mashed tomato');
+          expect(res.body[0]).to.have.property('name').eql('Mashed potato');
           expect(res.body[1]).to.have.property('name').eql('Crisps');
           done();
         });
@@ -476,7 +476,7 @@ describe('Token', function () {
         .set('X-Access-Token', token)
         .end(function (err, res) {
           expect(res).to.have.status(200);
-          expect(res.body).to.have.property('name').eql('Mashed tomato');
+          expect(res.body).to.have.property('name').eql('Mashed potato');
           done();
         });
     });

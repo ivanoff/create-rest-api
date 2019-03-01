@@ -9,7 +9,9 @@
 
 # Create REST API
 
-### v.4.2.1
+### v.5.1.1
+
+**Unmaintained, please see [api-i](https://github.com/ivanoff/api-i)**
 
 ###  Create your REST API from scarch
 

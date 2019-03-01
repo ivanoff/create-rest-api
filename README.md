@@ -11,7 +11,7 @@
 
 ### v.5.1.1
 
-**Unmaintained, please see [api-i](https://github.com/ivanoff/api-i)**
+**Unmaintained, please use [api-i](https://github.com/ivanoff/api-i)**
 
 ###  Create your REST API from scarch
 
